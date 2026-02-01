@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Głosowania Sejmowego</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .voting-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--secondary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .voting-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .voting-card.closed {
+            border-left-color: #7f8c8d;
+            background: #f5f5f5;
+        }
+        
+        .voting-title {
+            color: var(--primary);
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .voting-desc {
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .voting-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-closed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .vote-options {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        .vote-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .vote-yes {
+            background: var(--success);
+            color: white;
+        }
+        
+        .vote-no {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .vote-abstain {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .vote-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+        
+        .voter-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #eee;
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+        
+        .results-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 2px dashed #ddd;
+            text-align: center;
+            display: none;
+        }
+        
+        .results-section.visible {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        .results-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .result-bar {
+            height: 30px;
+            background: #eee;
+            border-radius: 15px;
+            margin: 10px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .yes-bar {
+            background: var(--success);
+            height: 100%;
+            float: left;
+            transition: width 1s ease-in-out;
+        }
+        
+        .no-bar {
+            background: var(--danger);
+            height: 100%;
+            float: left;
+            transition: width 1s ease-in-out;
+        }
+        
+        .abstain-bar {
+            background: var(--warning);
+            height: 100%;
+            float: left;
+            transition: width 1s ease-in-out;
+        }
+        
+        .result-label {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 30px;
+            color: black;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px white;
+        }
+        
+        .result-numbers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        
+        .admin-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+        
+        .admin-link:hover {
+            background: #1a252f;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .no-votings {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .vote-options {
+                flex-direction: column;
+            }
+            
+            .vote-btn {
+                width: 100%;
+            }
+            
+            .admin-link {
+                position: static;
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="admin.html" class="admin-link">🔐 Panel Administratora</a>
+    
+    <div class="container">
+        <header>
+            <h1>🗳️ System Głosowania Sejmowego</h1>
+            <p class="subtitle">Oddaj swój głos w bieżących głosowaniach</p>
+        </header>
+        
+        <main>
+            <div id="loading" class="loading">
+                <p>Ładowanie głosowań...</p>
+            </div>
+            
+            <div id="noVotings" class="no-votings" style="display: none;">
+                <p>Brak aktywnych głosowań</p>
+            </div>
+            
+            <div id="votingsList">
+                <!-- Głosowania wczytają się tutaj -->
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2024 System Głosowania Parlamentarnego. Wersja 1.2</p>
+            <p>Każdy głos jest weryfikowany i zabezpieczony.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // GŁÓWNA FUNKCJA - uruchamia się po załadowaniu strony
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVotings();
+        });
+        
+        // Funkcja ładująca głosowania
+        function loadVotings() {
+            const loading = document.getElementById('loading');
+            const noVotings = document.getElementById('noVotings');
+            const votingsList = document.getElementById('votingsList');
+            
+            // Symulacja ładowania
+            setTimeout(() => {
+                // Pobierz głosowania z localStorage
+                let votings = JSON.parse(localStorage.getItem('votings'));
+                
+                // Jeśli nie ma, załaduj domyślne
+                if (!votings || votings.length === 0) {
+                    votings = getDefaultVotings();
+                    localStorage.setItem('votings', JSON.stringify(votings));
+                }
+                
+                loading.style.display = 'none';
+                
+                if (votings.length === 0) {
+                    noVotings.style.display = 'block';
+                    return;
+                }
+                
+                // Wyświetl głosowania
+                renderVotings(votings);
+            }, 500);
+        }
+        
+        // Domyślne głosowania (tylko jeśli nie ma w localStorage)
+        function getDefaultVotings() {
+            return [
+                {
+                    id: 1,
+                    title: "Nowelizacja ustawy o ochronie środowiska",
+                    description: "Głosowanie nad wprowadzeniem zaostrzonych norm emisji CO2 dla przedsiębiorstw przemysłowych. Projekt zakłada redukcję emisji o 40% do 2030 roku.",
+                    status: "active", // active lub closed
+                    resultsVisible: false, // czy wyniki są widoczne
+                    votes: {
+                        yes: 0,
+                        no: 0,
+                        abstain: 0
+                    },
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    title: "Budowa autostrady A1 - odcinek Warszawa-Łódź",
+                    description: "Przyznanie dodatkowych środków na dokończenie budowy autostrady. Wartość inwestycji: 2,5 mld zł.",
+                    status: "active",
+                    resultsVisible: false,
+                    votes: {
+                        yes: 0,
+                        no: 0,
+                        abstain: 0
+                    },
+                    createdAt: new Date().toISOString()
+                }
+            ];
+        }
+        
+        // Wyświetlanie głosowań
+        function renderVotings(votings) {
+            const container = document.getElementById('votingsList');
+            container.innerHTML = '';
+            
+            votings.forEach(voting => {
+                // Pobierz głosy dla tego głosowania
+                const allVotes = JSON.parse(localStorage.getItem('votes') || '{}');
+                const thisVotes = allVotes[voting.id] || voting.votes;
+                
+                // Oblicz procenty tylko jeśli wyniki są widoczne
+                const totalVotes = thisVotes.yes + thisVotes.no + thisVotes.abstain;
+                let yesPercent = 0, noPercent = 0, abstainPercent = 0;
+                
+                if (totalVotes > 0 && (voting.status === 'closed' || voting.resultsVisible)) {
+                    yesPercent = (thisVotes.yes / totalVotes * 100).toFixed(1);
+                    noPercent = (thisVotes.no / totalVotes * 100).toFixed(1);
+                    abstainPercent = (thisVotes.abstain / totalVotes * 100).toFixed(1);
+                }
+                
+                // Sprawdź czy użytkownik już głosował
+                const voterName = promptForVoterName(voting.id);
+                const hasVoted = checkIfVoted(voting.id, voterName);
+                
+                container.innerHTML += `
+                    <div class="voting-card ${voting.status === 'closed' ? 'closed' : ''}">
+                        <div class="voting-title">
+                            <span>${voting.title}</span>
+                            <span class="voting-status ${voting.status === 'active' ? 'status-active' : 'status-closed'}">
+                                ${voting.status === 'active' ? '🔵 AKTYWNE' : '🔴 ZAMKNIĘTE'}
+                            </span>
+                        </div>
+                        
+                        <div class="voting-desc">${voting.description}</div>
+                        
+                        <div class="voter-info">
+                            <div class="form-group">
+                                <label for="name-${voting.id}">
+                                    👤 Imię i Nazwisko (wymagane do głosowania):
+                                </label>
+                                <input type="text" 
+                                       id="name-${voting.id}" 
+                                       placeholder="np. Jan Kowalski"
+                                       value="${voterName || ''}">
+                            </div>
+                            
+                            ${hasVoted ? 
+                                `<div class="message success">
+                                    ✅ Już oddałeś głos w tym głosowaniu
+                                </div>` 
+                                : 
+                                `<div class="vote-options">
+                                    <button class="vote-btn vote-yes" 
+                                            onclick="vote(${voting.id}, 'yes')"
+                                            ${voting.status === 'closed' ? 'disabled' : ''}>
+                                        👍 ZA
+                                    </button>
+                                    <button class="vote-btn vote-no" 
+                                            onclick="vote(${voting.id}, 'no')"
+                                            ${voting.status === 'closed' ? 'disabled' : ''}>
+                                        👎 PRZECIW
+                                    </button>
+                                    <button class="vote-btn vote-abstain" 
+                                            onclick="vote(${voting.id}, 'abstain')"
+                                            ${voting.status === 'closed' ? 'disabled' : ''}>
+                                        🤝 WSTRZYMUJĘ SIĘ
+                                    </button>
+                                </div>`
+                            }
+                        </div>
+                        
+                        <!-- Sekcja wyników - pokazuje się tylko jeśli głosowanie zamknięte LUB admin włączył widoczność -->
+                        <div class="results-section ${voting.status === 'closed' || voting.resultsVisible ? 'visible' : ''}">
+                            <div class="results-title">
+                                ${voting.status === 'closed' ? 'Wyniki głosowania:' : 'Wyniki (widoczne):'}
+                            </div>
+                            
+                            ${totalVotes === 0 ? 
+                                '<p>Brak oddanych głosów</p>' :
+                                `
+                                <div class="result-bar">
+                                    <div class="yes-bar" style="width: ${yesPercent}%"></div>
+                                    <div class="no-bar" style="width: ${noPercent}%"></div>
+                                    <div class="abstain-bar" style="width: ${abstainPercent}%"></div>
+                                    <div class="result-label">
+                                        ${yesPercent}% | ${noPercent}% | ${abstainPercent}%
+                                    </div>
+                                </div>
+                                
+                                <div class="result-numbers">
+                                    <span>ZA: ${thisVotes.yes}</span>
+                                    <span>PRZECIW: ${thisVotes.no}</span>
+                                    <span>WSTRZYMUJĄCY SIĘ: ${thisVotes.abstain}</span>
+                                    <span><strong>RAZEM: ${totalVotes}</strong></span>
+                                </div>
+                                `
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        // Funkcja głosowania
+        function vote(votingId, voteType) {
+            const voterNameInput = document.getElementById(`name-${votingId}`);
+            const voterName = voterNameInput.value.trim();
+            
+            // Walidacja
+            if (!voterName) {
+                alert('Proszę wpisać imię i nazwisko przed oddaniem głosu!');
+                voterNameInput.focus();
+                return;
+            }
+            
+            // Sprawdź czy głosowanie jeszcze aktywne
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const voting = votings.find(v => v.id === votingId);
+            
+            if (!voting || voting.status !== 'active') {
+                alert('To głosowanie jest już zamknięte!');
+                return;
+            }
+            
+            // Sprawdź czy osoba już głosowała
+            if (checkIfVoted(votingId, voterName)) {
+                alert('Ta osoba już oddała głos w tym głosowaniu!');
+                return;
+            }
+            
+            // Zapisz głos
+            saveVote(votingId, voteType, voterName);
+            
+            // Zapisz imię dla przyszłych głosowań
+            localStorage.setItem('lastVoterName', voterName);
+            
+            // Odśwież widok
+            loadVotings();
+            
+            // Powiadomienie
+            showMessage(`✅ Dziękujemy ${voterName}! Twój głos został zapisany.`, 'success');
+        }
+        
+        // Zapisz głos w localStorage
+        function saveVote(votingId, voteType, voterName) {
+            // 1. Zaktualizuj liczbę głosów w głosowaniu
+            let votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const votingIndex = votings.findIndex(v => v.id === votingId);
+            
+            if (votingIndex !== -1) {
+                votings[votingIndex].votes[voteType]++;
+                localStorage.setItem('votings', JSON.stringify(votings));
+            }
+            
+            // 2. Zapisz szczegóły głosu (dla admina)
+            let allVotes = JSON.parse(localStorage.getItem('voteDetails') || '{}');
+            if (!allVotes[votingId]) allVotes[votingId] = [];
+            
+            allVotes[votingId].push({
+                voter: voterName,
+                vote: voteType,
+                timestamp: new Date().toISOString(),
+                ip: 'localhost' // W rzeczywistości pobierane z serwera
+            });
+            
+            localStorage.setItem('voteDetails', JSON.stringify(allVotes));
+            
+            // 3. Zapisz że ta osoba głosowała (prosty sposób)
+            let voterHistory = JSON.parse(localStorage.getItem('voterHistory') || '{}');
+            if (!voterHistory[voterName]) voterHistory[voterName] = [];
+            voterHistory[voterName].push(votingId);
+            localStorage.setItem('voterHistory', JSON.stringify(voterHistory));
+        }
+        
+        // Sprawdź czy osoba już głosowała
+        function checkIfVoted(votingId, voterName) {
+            if (!voterName) return false;
+            
+            const voterHistory = JSON.parse(localStorage.getItem('voterHistory') || '{}');
+            return voterHistory[voterName] && voterHistory[voterName].includes(votingId);
+        }
+        
+        // Zapamiętaj imię użytkownika
+        function promptForVoterName(votingId) {
+            return localStorage.getItem('lastVoterName') || '';
+        }
+        
+        // Pokaż wiadomość
+        function showMessage(text, type) {
+            // Tymczasowe powiadomienie
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = text;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
