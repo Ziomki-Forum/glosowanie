@@ -23,19 +23,19 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
             min-height: 100vh;
             padding: 20px;
             color: #333;
         }
         
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         
         header {
@@ -56,6 +56,24 @@
             font-size: 1.1em;
         }
         
+        .current-badge {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-top: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        
         .voting-card {
             background: #f8f9fa;
             border-radius: 10px;
@@ -63,49 +81,18 @@
             margin-bottom: 25px;
             border-left: 5px solid var(--secondary);
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
-        }
-        
-        .voting-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .voting-card.closed {
-            border-left-color: #7f8c8d;
-            background: #f5f5f5;
         }
         
         .voting-title {
             color: var(--primary);
             font-size: 1.3em;
             margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
         .voting-desc {
             color: #555;
             margin-bottom: 20px;
             line-height: 1.6;
-        }
-        
-        .voting-status {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        
-        .status-active {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .status-closed {
-            background: #f8d7da;
-            color: #721c24;
         }
         
         .vote-options {
@@ -181,81 +168,11 @@
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
-            transition: border 0.3s;
         }
         
         input[type="text"]:focus {
             border-color: var(--secondary);
             outline: none;
-        }
-        
-        .results-section {
-            margin-top: 25px;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            border: 2px dashed #ddd;
-            text-align: center;
-            display: none;
-        }
-        
-        .results-section.visible {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-        
-        .results-title {
-            color: var(--primary);
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-        
-        .result-bar {
-            height: 30px;
-            background: #eee;
-            border-radius: 15px;
-            margin: 10px 0;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .yes-bar {
-            background: var(--success);
-            height: 100%;
-            float: left;
-            transition: width 1s ease-in-out;
-        }
-        
-        .no-bar {
-            background: var(--danger);
-            height: 100%;
-            float: left;
-            transition: width 1s ease-in-out;
-        }
-        
-        .abstain-bar {
-            background: var(--warning);
-            height: 100%;
-            float: left;
-            transition: width 1s ease-in-out;
-        }
-        
-        .result-label {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            line-height: 30px;
-            color: black;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px white;
-        }
-        
-        .result-numbers {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: #555;
         }
         
         .admin-link {
@@ -285,11 +202,6 @@
             font-size: 0.9em;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
         .message {
             padding: 15px;
             border-radius: 8px;
@@ -312,17 +224,32 @@
             display: block;
         }
         
-        .loading {
+        .no-voting {
             text-align: center;
-            padding: 40px;
+            padding: 50px;
             color: #666;
+            font-size: 1.2em;
         }
         
-        .no-votings {
+        .no-voting i {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #95a5a6;
+        }
+        
+        .vote-counter {
             text-align: center;
-            padding: 40px;
-            color: #666;
-            font-size: 1.1em;
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .info-box {
+            background: #e8f4fd;
+            border-left: 5px solid #3498db;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
         }
         
         @media (max-width: 768px) {
@@ -348,30 +275,44 @@
     </style>
 </head>
 <body>
-    <a href="admin.html" class="admin-link">🔐</a>
+    <a href="admin.html" class="admin-link">.</a>
     
     <div class="container">
         <header>
-            <h1>🗳️ System Głosowań SU</h1>
-            <p class="subtitle">Oddaj swój głos w bieżących głosowaniach</p>
+            <h1>🗳️ Sysytem Głosowań Samorządu Uczniowskiego</h1>
+            <p class="subtitle">przy Zespole Szkół Technicznych w Mielcu</p>
+            <p class="subtitle">Oddaj swój głos w aktualnie trwającym głosowaniu</p>
+            <div class="current-badge">AKTUALNE GŁOSOWANIE</div>
         </header>
         
         <main>
-            <div id="loading" class="loading">
-                <p>Ładowanie głosowań...</p>
+            <div id="loading" style="text-align: center; padding: 40px; color: #666;">
+                <p>Ładowanie systemu...</p>
             </div>
             
-            <div id="noVotings" class="no-votings" style="display: none;">
-                <p>Brak aktywnych głosowań</p>
+            <div id="noVoting" class="no-voting" style="display: none;">
+                <i class="fas fa-box-open"></i>
+                <h3>Brak aktywnego głosowania</h3>
+                <div class="info-box">
+                    <p><strong>Obecnie nie ma żadnego aktywnego głosowania.</strong></p>
+                    <p>Oczekuj na informacje od przewodniczącego.</p>
+                    <ol style="text-align: left; margin: 15px 0; padding-left: 20px;">
+                        <li>Pamiętaj o odświeżeniu strony</li>
+                    </ol>
+                </div>
             </div>
             
-            <div id="votingsList">
-                <!-- Głosowania wczytają się tutaj -->
+            <div id="votingContainer">
+                <!-- Bieżące głosowanie wczytuje się tutaj -->
+            </div>
+            
+            <div class="vote-counter">
+                <p id="voteCount">Głosów oddano: 0</p>
             </div>
         </main>
         
         <footer>
-            <p>© 2024 System Głosowania SU. Wersja 1.2</p>
+            <p>© 2024 System Głosowania Samorządu Uczniowskiego. Wersja 2.0</p>
             <p>Każdy głos jest weryfikowany i zabezpieczony.</p>
         </footer>
     </div>
@@ -379,176 +320,125 @@
     <script>
         // GŁÓWNA FUNKCJA - uruchamia się po załadowaniu strony
         document.addEventListener('DOMContentLoaded', function() {
-            loadVotings();
+            loadCurrentVoting();
         });
         
-        // Funkcja ładująca głosowania
-        function loadVotings() {
+        // Funkcja ładująca BIEŻĄCE głosowanie (tylko jedno, widoczne)
+        function loadCurrentVoting() {
             const loading = document.getElementById('loading');
-            const noVotings = document.getElementById('noVotings');
-            const votingsList = document.getElementById('votingsList');
+            const noVoting = document.getElementById('noVoting');
+            const container = document.getElementById('votingContainer');
             
-            // Symulacja ładowania
+            // Pobierz głosowania z localStorage
+            let votings = JSON.parse(localStorage.getItem('votings'));
+            
+            // Jeśli nie ma żadnych głosowań
+            if (!votings || votings.length === 0) {
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    noVoting.style.display = 'block';
+                }, 500);
+                return;
+            }
+            
+            // Znajdź BIEŻĄCE głosowanie (visible: true i status: active)
+            const currentVoting = votings.find(v => v.visible === true && v.status === 'active');
+            
             setTimeout(() => {
-                // Pobierz głosowania z localStorage
-                let votings = JSON.parse(localStorage.getItem('votings'));
-                
-                // Jeśli nie ma, załaduj domyślne
-                if (!votings || votings.length === 0) {
-                    votings = getDefaultVotings();
-                    localStorage.setItem('votings', JSON.stringify(votings));
-                }
-                
                 loading.style.display = 'none';
                 
-                if (votings.length === 0) {
-                    noVotings.style.display = 'block';
+                if (!currentVoting) {
+                    // Sprawdź czy są jakieś głosowania, ale nie ma aktywnego
+                    const anyVotings = votings.length > 0;
+                    if (anyVotings) {
+                        noVoting.innerHTML = `
+                            <i class="fas fa-eye-slash"></i>
+                            <h3>Brak aktywnego głosowania</h3>
+                            <div class="info-box">
+                                <p>Obecnie nie ma żadnego aktywnego głosowania.".</p>
+                                <p>Oczekuj na instrukcje przewodniczącego.</p>
+                                <p>Pamiętaj o odświeżeniu strony!</p>
+                            </div>
+                        `;
+                    }
+                    noVoting.style.display = 'block';
                     return;
                 }
                 
-                // Wyświetl głosowania
-                renderVotings(votings);
+                // Wyświetl bieżące głosowanie
+                renderCurrentVoting(currentVoting);
+                
+                // Zaktualizuj licznik głosów
+                updateVoteCounter(currentVoting.id);
             }, 500);
         }
         
-        // Domyślne głosowania (tylko jeśli nie ma w localStorage)
-        function getDefaultVotings() {
-            return [
-                {
-                    id: 1,
-                    title: "Nowelizacja ustawy o ochronie środowiska",
-                    description: "Głosowanie nad wprowadzeniem zaostrzonych norm emisji CO2 dla przedsiębiorstw przemysłowych. Projekt zakłada redukcję emisji o 40% do 2030 roku.",
-                    status: "active", // active lub closed
-                    resultsVisible: false, // czy wyniki są widoczne
-                    votes: {
-                        yes: 0,
-                        no: 0,
-                        abstain: 0
-                    },
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    title: "Budowa autostrady A1 - odcinek Warszawa-Łódź",
-                    description: "Przyznanie dodatkowych środków na dokończenie budowy autostrady. Wartość inwestycji: 2,5 mld zł.",
-                    status: "active",
-                    resultsVisible: false,
-                    votes: {
-                        yes: 0,
-                        no: 0,
-                        abstain: 0
-                    },
-                    createdAt: new Date().toISOString()
-                }
-            ];
-        }
+        // NIE MA DOMYŚLNYCH GŁOSOWAŃ - zaczynamy z pustą tablicą
         
-        // Wyświetlanie głosowań
-        function renderVotings(votings) {
-            const container = document.getElementById('votingsList');
-            container.innerHTML = '';
+        // Wyświetlanie BIEŻĄCEGO głosowania
+        function renderCurrentVoting(voting) {
+            const container = document.getElementById('votingContainer');
             
-            votings.forEach(voting => {
-                // Pobierz głosy dla tego głosowania
-                const allVotes = JSON.parse(localStorage.getItem('votes') || '{}');
-                const thisVotes = allVotes[voting.id] || voting.votes;
-                
-                // Oblicz procenty tylko jeśli wyniki są widoczne
-                const totalVotes = thisVotes.yes + thisVotes.no + thisVotes.abstain;
-                let yesPercent = 0, noPercent = 0, abstainPercent = 0;
-                
-                if (totalVotes > 0 && (voting.status === 'closed' || voting.resultsVisible)) {
-                    yesPercent = (thisVotes.yes / totalVotes * 100).toFixed(1);
-                    noPercent = (thisVotes.no / totalVotes * 100).toFixed(1);
-                    abstainPercent = (thisVotes.abstain / totalVotes * 100).toFixed(1);
-                }
-                
-                // Sprawdź czy użytkownik już głosował
-                const voterName = promptForVoterName(voting.id);
-                const hasVoted = checkIfVoted(voting.id, voterName);
-                
-                container.innerHTML += `
-                    <div class="voting-card ${voting.status === 'closed' ? 'closed' : ''}">
-                        <div class="voting-title">
-                            <span>${voting.title}</span>
-                            <span class="voting-status ${voting.status === 'active' ? 'status-active' : 'status-closed'}">
-                                ${voting.status === 'active' ? '🔵 AKTYWNE' : '🔴 ZAMKNIĘTE'}
-                            </span>
+            // Pobierz głosy dla tego głosowania
+            const allVotes = JSON.parse(localStorage.getItem('votes') || '{}');
+            const thisVotes = allVotes[voting.id] || voting.votes;
+            
+            // Sprawdź czy użytkownik już głosował
+            const voterName = promptForVoterName(voting.id);
+            const hasVoted = checkIfVoted(voting.id, voterName);
+            
+            container.innerHTML = `
+                <div class="voting-card">
+                    <div class="voting-title">${voting.title}</div>
+                    
+                    <div class="voting-desc">${voting.description}</div>
+                    
+                    <div class="voter-info">
+                        <div class="form-group">
+                            <label for="voterName">
+                                👤 Imię i Nazwisko (wymagane do głosowania):
+                            </label>
+                            <input type="text" 
+                                   id="voterName" 
+                                   placeholder="np. Jan Kowalski"
+                                   value="${voterName || ''}">
                         </div>
                         
-                        <div class="voting-desc">${voting.description}</div>
+                        ${hasVoted ? 
+                            `<div class="message success">
+                                ✅ Już oddałeś głos w tym głosowaniu
+                            </div>` 
+                            : 
+                            `<div class="vote-options">
+                                <button class="vote-btn vote-yes" 
+                                        onclick="vote(${voting.id}, 'yes')">
+                                    👍 ZA
+                                </button>
+                                <button class="vote-btn vote-no" 
+                                        onclick="vote(${voting.id}, 'no')">
+                                    👎 PRZECIW
+                                </button>
+                                <button class="vote-btn vote-abstain" 
+                                        onclick="vote(${voting.id}, 'abstain')">
+                                    🤝 WSTRZYMUJĘ SIĘ
+                                </button>
+                            </div>`
+                        }
                         
-                        <div class="voter-info">
-                            <div class="form-group">
-                                <label for="name-${voting.id}">
-                                    👤 Imię i Nazwisko (wymagane do głosowania):
-                                </label>
-                                <input type="text" 
-                                       id="name-${voting.id}" 
-                                       placeholder="np. Jan Kowalski"
-                                       value="${voterName || ''}">
-                            </div>
-                            
-                            ${hasVoted ? 
-                                `<div class="message success">
-                                    ✅ Już oddałeś głos w tym głosowaniu
-                                </div>` 
-                                : 
-                                `<div class="vote-options">
-                                    <button class="vote-btn vote-yes" 
-                                            onclick="vote(${voting.id}, 'yes')"
-                                            ${voting.status === 'closed' ? 'disabled' : ''}>
-                                        👍 ZA
-                                    </button>
-                                    <button class="vote-btn vote-no" 
-                                            onclick="vote(${voting.id}, 'no')"
-                                            ${voting.status === 'closed' ? 'disabled' : ''}>
-                                        👎 PRZECIW
-                                    </button>
-                                    <button class="vote-btn vote-abstain" 
-                                            onclick="vote(${voting.id}, 'abstain')"
-                                            ${voting.status === 'closed' ? 'disabled' : ''}>
-                                        🤝 WSTRZYMUJĘ SIĘ
-                                    </button>
-                                </div>`
-                            }
-                        </div>
-                        
-                        <!-- Sekcja wyników - pokazuje się tylko jeśli głosowanie zamknięte LUB admin włączył widoczność -->
-                        <div class="results-section ${voting.status === 'closed' || voting.resultsVisible ? 'visible' : ''}">
-                            <div class="results-title">
-                                ${voting.status === 'closed' ? 'Wyniki głosowania:' : 'Wyniki (widoczne):'}
-                            </div>
-                            
-                            ${totalVotes === 0 ? 
-                                '<p>Brak oddanych głosów</p>' :
-                                `
-                                <div class="result-bar">
-                                    <div class="yes-bar" style="width: ${yesPercent}%"></div>
-                                    <div class="no-bar" style="width: ${noPercent}%"></div>
-                                    <div class="abstain-bar" style="width: ${abstainPercent}%"></div>
-                                    <div class="result-label">
-                                        ${yesPercent}% | ${noPercent}% | ${abstainPercent}%
-                                    </div>
-                                </div>
-                                
-                                <div class="result-numbers">
-                                    <span>ZA: ${thisVotes.yes}</span>
-                                    <span>PRZECIW: ${thisVotes.no}</span>
-                                    <span>WSTRZYMUJĄCY SIĘ: ${thisVotes.abstain}</span>
-                                    <span><strong>RAZEM: ${totalVotes}</strong></span>
-                                </div>
-                                `
-                            }
-                        </div>
+                        ${hasVoted ? 
+                            `<div style="text-align: center; margin-top: 20px; color: #27ae60;">
+                                <i class="fas fa-check-circle"></i> Twój głos został już zarejestrowany
+                            </div>` 
+                            : ''
+                        }
                     </div>
-                `;
-            });
+                </div>
+            `;
         }
         
         // Funkcja głosowania
         function vote(votingId, voteType) {
-            const voterNameInput = document.getElementById(`name-${votingId}`);
+            const voterNameInput = document.getElementById('voterName');
             const voterName = voterNameInput.value.trim();
             
             // Walidacja
@@ -580,7 +470,7 @@
             localStorage.setItem('lastVoterName', voterName);
             
             // Odśwież widok
-            loadVotings();
+            loadCurrentVoting();
             
             // Powiadomienie
             showMessage(`✅ Dziękujemy ${voterName}! Twój głos został zapisany.`, 'success');
@@ -605,12 +495,12 @@
                 voter: voterName,
                 vote: voteType,
                 timestamp: new Date().toISOString(),
-                ip: 'localhost' // W rzeczywistości pobierane z serwera
+                ip: 'localhost'
             });
             
             localStorage.setItem('voteDetails', JSON.stringify(allVotes));
             
-            // 3. Zapisz że ta osoba głosowała (prosty sposób)
+            // 3. Zapisz że ta osoba głosowała
             let voterHistory = JSON.parse(localStorage.getItem('voterHistory') || '{}');
             if (!voterHistory[voterName]) voterHistory[voterName] = [];
             voterHistory[voterName].push(votingId);
@@ -630,6 +520,17 @@
             return localStorage.getItem('lastVoterName') || '';
         }
         
+        // Aktualizuj licznik głosów
+        function updateVoteCounter(votingId) {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const voting = votings.find(v => v.id === votingId);
+            
+            if (voting) {
+                const totalVotes = voting.votes.yes + voting.votes.no + voting.votes.abstain;
+                document.getElementById('voteCount').textContent = `Głosów oddano: ${totalVotes}`;
+            }
+        }
+        
         // Pokaż wiadomość
         function showMessage(text, type) {
             // Tymczasowe powiadomienie
@@ -644,5 +545,8 @@
             }, 5000);
         }
     </script>
+    
+    <!-- Font Awesome dla ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </body>
 </html>
