@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administratora</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .back-link {
+            display: inline-block;
+            background: #7f8c8d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .back-link:hover {
+            background: #6c7b7d;
+        }
+        
+        /* Sekcja logowania */
+        #loginSection {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .login-title {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+            letter-spacing: 2px;
+        }
+        
+        .login-btn {
+            background: var(--success);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        
+        .login-btn:hover {
+            background: #219a52;
+        }
+        
+        /* Panel admina */
+        .admin-panel {
+            display: none;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .tab.active {
+            color: var(--secondary);
+            border-bottom: 3px solid var(--secondary);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        /* Statystyki */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        /* Lista głosowań */
+        .admin-voting-list {
+            margin-top: 20px;
+        }
+        
+        .admin-voting-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--secondary);
+            transition: transform 0.3s;
+        }
+        
+        .admin-voting-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .admin-voting-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .voting-id {
+            background: var(--primary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .admin-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-show-results {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-hide-results {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-close {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-open {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-edit {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .admin-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        /* Formularz dodawania głosowania */
+        .form-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-primary {
+            background: var(--success);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Tabela głosów */
+        .votes-table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        .votes-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .votes-table th {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .votes-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .votes-table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .vote-yes-cell {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .vote-no-cell {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        
+        .vote-abstain-cell {
+            color: var(--warning);
+            font-weight: bold;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .export-btn {
+            background: var(--secondary);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                text-align: center;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .admin-actions {
+                flex-direction: column;
+            }
+            
+            .admin-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Powrót do głosowania</a>
+        
+        <header>
+            <h1>🔐 Panel Administratora</h1>
+            <p class="subtitle">Zarządzaj głosowaniami i przeglądaj szczegóły głosów</p>
+        </header>
+        
+        <!-- Sekcja logowania -->
+        <div id="loginSection">
+            <h2 class="login-title">Logowanie do panelu</h2>
+            <p>Wprowadź hasło administratora:</p>
+            <input type="password" 
+                   id="adminPassword" 
+                   class="password-input" 
+                   placeholder="Wprowadź hasło"
+                   onkeypress="if(event.key === 'Enter') login()">
+            <button class="login-btn" onclick="login()">Zaloguj się</button>
+            <p style="margin-top: 20px; color: #666; font-size: 14px;">
+                Domyślne hasło: <code>admin123</code> (zmień w kodzie po wdrożeniu)
+            </p>
+        </div>
+        
+        <!-- Panel admina (ukryty przed logowaniem) -->
+        <div id="adminPanel" class="admin-panel">
+            <!-- Zakładki -->
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab(1)">📊 Dashboard</div>
+                <div class="tab" onclick="switchTab(2)">🗳️ Głosowania</div>
+                <div class="tab" onclick="switchTab(3)">👥 Szczegóły głosów</div>
+                <div class="tab" onclick="switchTab(4)">➕ Nowe głosowanie</div>
+            </div>
+            
+            <!-- Zawartość zakładek -->
+            
+            <!-- Zakładka 1: Dashboard -->
+            <div id="tab1" class="tab-content active">
+                <h2>Statystyki systemu</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalVotings">0</div>
+                        <div class="stat-label">Liczba głosowań</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeVotings">0</div>
+                        <div class="stat-label">Aktywne głosowania</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalVotes">0</div>
+                        <div class="stat-label">Wszystkie głosy</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number" id="uniqueVoters">0</div>
+                        <div class="stat-label">Unikalnych głosujących</div>
+                    </div>
+                </div>
+                
+                <div class="form-container">
+                    <h3>Ustawienia systemu</h3>
+                    <div class="admin-actions">
+                        <button class="admin-btn btn-primary" onclick="exportData()">
+                            📥 Eksportuj wszystkie dane
+                        </button>
+                        <button class="admin-btn btn-secondary" onclick="clearAllData()">
+                            🗑️ Wyczyść wszystkie dane (ostrożnie!)
+                        </button>
+                        <button class="admin-btn" onclick="resetToDefault()" 
+                                style="background: #6c757d; color: white;">
+                            🔄 Przywróć domyślne głosowania
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Zakładka 2: Lista głosowań -->
+            <div id="tab2" class="tab-content">
+                <h2>Zarządzanie głosowaniami</h2>
+                <p>Kliknij na głosowanie, aby je edytować lub zarządzać jego wynikami.</p>
+                
+                <div id="adminVotingsList" class="admin-voting-list">
+                    <!-- Lista głosowań wczyta się tutaj -->
+                </div>
+            </div>
+            
+            <!-- Zakładka 3: Szczegóły głosów -->
+            <div id="tab3" class="tab-content">
+                <h2>Szczegółowe wyniki głosów</h2>
+                <p>Tylko administrator może zobaczyć kto na co głosował.</p>
+                
+                <div class="form-group">
+                    <label class="form-label">Wybierz głosowanie:</label>
+                    <select id="votingSelect" class="form-input" onchange="loadVotingDetails()">
+                        <option value="">-- Wybierz głosowanie --</option>
+                    </select>
+                </div>
+                
+                <div id="votesDetails">
+                    <!-- Szczegóły głosów wczytają się tutaj -->
+                </div>
+            </div>
+            
+            <!-- Zakładka 4: Nowe głosowanie -->
+            <div id="tab4" class="tab-content">
+                <h2>Dodaj nowe głosowanie</h2>
+                
+                <div class="form-container">
+                    <form id="newVotingForm">
+                        <div class="form-group">
+                            <label class="form-label">Tytuł głosowania:</label>
+                            <input type="text" 
+                                   id="newVotingTitle" 
+                                   class="form-input" 
+                                   placeholder="np. Nowelizacja ustawy o..."
+                                   required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Opis głosowania:</label>
+                            <textarea id="newVotingDesc" 
+                                      class="form-textarea" 
+                                      placeholder="Szczegółowy opis tematu głosowania..."
+                                      required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Status początkowy:</label>
+                            <select id="newVotingStatus" class="form-input">
+                                <option value="active">Aktywne (można głosować)</option>
+                                <option value="closed">Zamknięte (tylko wyniki)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                ➕ Dodaj głosowanie
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="clearForm()">
+                                ❌ Wyczyść formularz
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="formMessage" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // HASŁO ADMINISTRATORA (zmień to!)
+        const ADMIN_PASSWORD = "admin123";
+        let isLoggedIn = false;
+        
+        // Sprawdź czy użytkownik jest już zalogowany
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('adminLoggedIn') === 'true') {
+                isLoggedIn = true;
+                showAdminPanel();
+            }
+        });
+        
+        // Funkcja logowania
+        function login() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                isLoggedIn = true;
+                localStorage.setItem('adminLoggedIn', 'true');
+                showAdminPanel();
+                showMessage('Zalogowano pomyślnie!', 'success');
+            } else {
+                alert('❌ Nieprawidłowe hasło!');
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+        
+        // Pokaż panel admina
+        function showAdminPanel() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            updateDashboard();
+            loadAdminVotings();
+            loadVotingSelect();
+        }
+        
+        // Wyloguj (ukryte)
+        function logout() {
+            localStorage.removeItem('adminLoggedIn');
+            location.reload();
+        }
+        
+        // Przełączanie zakładek
+        function switchTab(tabNumber) {
+            // Ukryj wszystkie zakładki
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Usuń aktywny stan z zakładek
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Pokaż wybraną zakładkę
+            document.getElementById(`tab${tabNumber}`).classList.add('active');
+            
+            // Oznacz zakładkę jako aktywną
+            document.querySelectorAll('.tab')[tabNumber - 1].classList.add('active');
+            
+            // Załaduj dane jeśli to zakładka 3
+            if (tabNumber === 3) {
+                loadVotingDetails();
+            }
+        }
+        
+        // Aktualizuj dashboard
+        function updateDashboard() {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const voteDetails = JSON.parse(localStorage.getItem('voteDetails') || '{}');
+            const voterHistory = JSON.parse(localStorage.getItem('voterHistory') || '{}');
+            
+            // Liczba głosowań
+            document.getElementById('totalVotings').textContent = votings.length;
+            
+            // Aktywne głosowania
+            const active = votings.filter(v => v.status === 'active').length;
+            document.getElementById('activeVotings').textContent = active;
+            
+            // Wszystkie głosy
+            let totalVotes = 0;
+            votings.forEach(v => {
+                totalVotes += v.votes.yes + v.votes.no + v.votes.abstain;
+            });
+            document.getElementById('totalVotes').textContent = totalVotes;
+            
+            // Unikalni głosujący
+            document.getElementById('uniqueVoters').textContent = Object.keys(voterHistory).length;
+        }
+        
+        // Załaduj listę głosowań do zarządzania
+        function loadAdminVotings() {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const container = document.getElementById('adminVotingsList');
+            
+            if (votings.length === 0) {
+                container.innerHTML = '<div class="empty-state">Brak głosowań</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            votings.forEach(voting => {
+                const totalVotes = voting.votes.yes + voting.votes.no + voting.votes.abstain;
+                
+                container.innerHTML += `
+                    <div class="admin-voting-item">
+                        <div class="admin-voting-header">
+                            <h3>${voting.title}</h3>
+                            <span class="voting-id">ID: ${voting.id}</span>
+                        </div>
+                        
+                        <p>${voting.description}</p>
+                        
+                        <div style="margin: 10px 0; color: #666; font-size: 0.9em;">
+                            Utworzono: ${new Date(voting.createdAt).toLocaleDateString('pl-PL')} | 
+                            Głosy: ${totalVotes} | 
+                            Status: <strong>${voting.status === 'active' ? 'AKTYWNE' : 'ZAMKNIĘTE'}</strong>
+                        </div>
+                        
+                        <div class="admin-actions">
+                            ${voting.status === 'active' ? 
+                                `<button class="admin-btn btn-close" onclick="toggleVotingStatus(${voting.id})">
+                                    🔒 Zamknij głosowanie
+                                </button>` :
+                                `<button class="admin-btn btn-open" onclick="toggleVotingStatus(${voting.id})">
+                                    🔓 Otwórz głosowanie
+                                </button>`
+                            }
+                            
+                            ${voting.resultsVisible ? 
+                                `<button class="admin-btn btn-hide-results" onclick="toggleResultsVisibility(${voting.id})">
+                                    👁️ Ukryj wyniki
+                                </button>` :
+                                `<button class="admin-btn btn-show-results" onclick="toggleResultsVisibility(${voting.id})">
+                                    👁️ Pokaż wyniki
+                                </button>`
+                            }
+                            
+                            <button class="admin-btn btn-edit" onclick="editVoting(${voting.id})">
+                                ✏️ Edytuj
+                            </button>
+                            
+                            <button class="admin-btn btn-delete" onclick="deleteVoting(${voting.id})">
+                                🗑️ Usuń
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        // Załaduj select z głosowaniami
+        function loadVotingSelect() {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const select = document.getElementById('votingSelect');
+            
+            select.innerHTML = '<option value="">-- Wybierz głosowanie --</option>';
+            
+            votings.forEach(voting => {
+                select.innerHTML += `
+                    <option value="${voting.id}">
+                        ${voting.id}. ${voting.title} (${voting.status === 'active' ? 'aktywne' : 'zamknięte'})
+                    </option>
+                `;
+            });
+        }
+        
+        // Załaduj szczegóły głosów dla wybranego głosowania
+        function loadVotingDetails() {
+            const votingId = document.getElementById('votingSelect').value;
+            const container = document.getElementById('votesDetails');
+            
+            if (!votingId) {
+                container.innerHTML = '<div class="empty-state">Wybierz głosowanie z listy</div>';
+                return;
+            }
+            
+            // Znajdź głosowanie
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const voting = votings.find(v => v.id == votingId);
+            
+            if (!voting) {
+                container.innerHTML = '<div class="empty-state">Głosowanie nie znalezione</div>';
+                return;
+            }
+            
+            // Pobierz szczegóły głosów
+            const allVoteDetails = JSON.parse(localStorage.getItem('voteDetails') || '{}');
+            const voteDetails = allVoteDetails[votingId] || [];
+            
+            // Statystyki
+            const totalVotes = voteDetails.length;
+            const yesVotes = voteDetails.filter(v => v.vote === 'yes').length;
+            const noVotes = voteDetails.filter(v => v.vote === 'no').length;
+            const abstainVotes = voteDetails.filter(v => v.vote === 'abstain').length;
+            
+            let tableHTML = `
+                <div style="margin: 20px 0;">
+                    <h3>${voting.title}</h3>
+                    <p>Łącznie głosów: <strong>${totalVotes}</strong> | 
+                    Za: <strong>${yesVotes}</strong> | 
+                    Przeciw: <strong>${noVotes}</strong> | 
+                    Wstrzymujący się: <strong>${abstainVotes}</strong></p>
+                </div>
+            `;
+            
+            if (totalVotes === 0) {
+                tableHTML += '<div class="empty-state">Brak oddanych głosów</div>';
+            } else {
+                tableHTML += `
+                    <button class="export-btn" onclick="exportVotingData(${votingId})">
+                        📥 Eksportuj dane tego głosowania
+                    </button>
+                    
+                    <div class="votes-table-container">
+                        <table class="votes-table">
+                            <thead>
+                                <tr>
+                                    <th>Lp.</th>
+                                    <th>Głosujący</th>
+                                    <th>Głos</th>
+                                    <th>Data i godzina</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                voteDetails.forEach((vote, index) => {
+                    let voteClass = '';
+                    let voteText = '';
+                    
+                    if (vote.vote === 'yes') {
+                        voteClass = 'vote-yes-cell';
+                        voteText = '👍 ZA';
+                    } else if (vote.vote === 'no') {
+                        voteClass = 'vote-no-cell';
+                        voteText = '👎 PRZECIW';
+                    } else {
+                        voteClass = 'vote-abstain-cell';
+                        voteText = '🤝 WSTRZYMUJĘ SIĘ';
+                    }
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td><strong>${vote.voter}</strong></td>
+                            <td class="${voteClass}">${voteText}</td>
+                            <td>${new Date(vote.timestamp).toLocaleString('pl-PL')}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = tableHTML;
+        }
+        
+        // Zmień status głosowania (aktywne/zamknięte)
+        function toggleVotingStatus(votingId) {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const votingIndex = votings.findIndex(v => v.id === votingId);
+            
+            if (votingIndex !== -1) {
+                votings[votingIndex].status = votings[votingIndex].status === 'active' ? 'closed' : 'active';
+                localStorage.setItem('votings', JSON.stringify(votings));
+                
+                showMessage(`Status głosowania zmieniony na: ${votings[votingIndex].status === 'active' ? 'AKTYWNE' : 'ZAMKNIĘTE'}`, 'success');
+                loadAdminVotings();
+                loadVotingSelect();
+                updateDashboard();
+            }
+        }
+        
+        // Przełącz widoczność wyników
+        function toggleResultsVisibility(votingId) {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const votingIndex = votings.findIndex(v => v.id === votingId);
+            
+            if (votingIndex !== -1) {
+                votings[votingIndex].resultsVisible = !votings[votingIndex].resultsVisible;
+                localStorage.setItem('votings', JSON.stringify(votings));
+                
+                showMessage(`Wyniki ${votings[votingIndex].resultsVisible ? 'WIDOCZNE' : 'UKRYTE'} dla publiczności`, 'success');
+                loadAdminVotings();
+            }
+        }
+        
+        // Edytuj głosowanie
+        function editVoting(votingId) {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const voting = votings.find(v => v.id === votingId);
+            
+            if (voting) {
+                document.getElementById('newVotingTitle').value = voting.title;
+                document.getElementById('newVotingDesc').value = voting.description;
+                document.getElementById('newVotingStatus').value = voting.status;
+                
+                // Zmień tekst przycisku
+                const form = document.getElementById('newVotingForm');
+                const submitBtn = form.querySelector('.btn-primary');
+                submitBtn.innerHTML = '💾 Zapisz zmiany';
+                
+                // Zmień działanie formularza
+                form.onsubmit = function(e) {
+                    e.preventDefault();
+                    saveEditedVoting(votingId);
+                };
+                
+                // Przejdź do zakładki z formularzem
+                switchTab(4);
+            }
+        }
+        
+        // Zapisz edytowane głosowanie
+        function saveEditedVoting(votingId) {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const votingIndex = votings.findIndex(v => v.id === votingId);
+            
+            if (votingIndex !== -1) {
+                votings[votingIndex].title = document.getElementById('newVotingTitle').value;
+                votings[votingIndex].description = document.getElementById('newVotingDesc').value;
+                votings[votingIndex].status = document.getElementById('newVotingStatus').value;
+                
+                localStorage.setItem('votings', JSON.stringify(votings));
+                showMessage('Głosowanie zaktualizowane!', 'success');
+                
+                // Zresetuj formularz
+                clearForm();
+                loadAdminVotings();
+                loadVotingSelect();
+                updateDashboard();
+            }
+        }
+        
+        // Usuń głosowanie
+        function deleteVoting(votingId) {
+            if (confirm('Czy na pewno chcesz usunąć to głosowanie? Ta operacja jest nieodwracalna!')) {
+                let votings = JSON.parse(localStorage.getItem('votings') || '[]');
+                votings = votings.filter(v => v.id !== votingId);
+                localStorage.setItem('votings', JSON.stringify(votings));
+                
+                showMessage('Głosowanie usunięte!', 'success');
+                loadAdminVotings();
+                loadVotingSelect();
+                updateDashboard();
+            }
+        }
+        
+        // Dodaj nowe głosowanie
+        document.getElementById('newVotingForm').onsubmit = function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('newVotingTitle').value;
+            const description = document.getElementById('newVotingDesc').value;
+            const status = document.getElementById('newVotingStatus').value;
+            
+            // Generuj nowe ID
+            let votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const newId = votings.length > 0 ? Math.max(...votings.map(v => v.id)) + 1 : 1;
+            
+            // Dodaj nowe głosowanie
+            votings.push({
+                id: newId,
+                title: title,
+                description: description,
+                status: status,
+                resultsVisible: false,
+                votes: { yes: 0, no: 0, abstain: 0 },
+                createdAt: new Date().toISOString()
+            });
+            
+            localStorage.setItem('votings', JSON.stringify(votings));
+            showMessage('Nowe głosowanie dodane!', 'success');
+            
+            // Zresetuj formularz
+            clearForm();
+            loadAdminVotings();
+            loadVotingSelect();
+            updateDashboard();
+        };
+        
+        // Wyczyść formularz
+        function clearForm() {
+            document.getElementById('newVotingForm').reset();
+            const submitBtn = document.querySelector('#newVotingForm .btn-primary');
+            submitBtn.innerHTML = '➕ Dodaj głosowanie';
+            document.getElementById('formMessage').innerHTML = '';
+            
+            // Przywróć domyślne działanie formularza
+            document.getElementById('newVotingForm').onsubmit = function(e) {
+                e.preventDefault();
+                this.submit();
+            };
+        }
+        
+        // Eksportuj dane głosowania
+        function exportVotingData(votingId) {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const voting = votings.find(v => v.id == votingId);
+            const allVoteDetails = JSON.parse(localStorage.getItem('voteDetails') || '{}');
+            const voteDetails = allVoteDetails[votingId] || [];
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Nagłówek
+            csvContent += `Głosowanie: ${voting.title}\n`;
+            csvContent += `Opis: ${voting.description}\n`;
+            csvContent += `Status: ${voting.status}\n\n`;
+            
+            // Dane
+            csvContent += "Lp.,Głosujący,Głos,Data i godzina\n";
+            
+            voteDetails.forEach((vote, index) => {
+                const voteText = vote.vote === 'yes' ? 'ZA' : vote.vote === 'no' ? 'PRZECIW' : 'WSTRZYMUJĘ SIĘ';
+                const row = `${index + 1},${vote.voter},${voteText},"${new Date(vote.timestamp).toLocaleString('pl-PL')}"`;
+                csvContent += row + "\n";
+            });
+            
+            // Utwórz link do pobrania
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `glosowanie_${votingId}_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Eksportuj wszystkie dane
+        function exportData() {
+            const allData = {
+                votings: JSON.parse(localStorage.getItem('votings') || '[]'),
+                voteDetails: JSON.parse(localStorage.getItem('voteDetails') || '{}'),
+                voterHistory: JSON.parse(localStorage.getItem('voterHistory') || '{}'),
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(allData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `glosowania_backup_${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showMessage('Dane wyeksportowane!', 'success');
+        }
+        
+        // Wyczyść wszystkie dane
+        function clearAllData() {
+            if (confirm('CZY NA PEWNO? To usunie WSZYSTKIE dane: głosowania, głosy, historię. Ta operacja jest nieodwracalna!')) {
+                localStorage.clear();
+                showMessage('Wszystkie dane zostały usunięte', 'success');
+                setTimeout(() => location.reload(), 1000);
+            }
+        }
+        
+        // Przywróć domyślne głosowania
+        function resetToDefault() {
+            if (confirm('Przywrócić domyślne głosowania? To usunie aktualne głosowania, ale zachowa oddane głosy.')) {
+                const defaultVotings = [
+                    {
+                        id: 1,
+                        title: "Nowelizacja ustawy o ochronie środowiska",
+                        description: "Głosowanie nad wprowadzeniem zaostrzonych norm emisji CO2 dla przedsiębiorstw przemysłowych. Projekt zakłada redukcję emisji o 40% do 2030 roku.",
+                        status: "active",
+                        resultsVisible: false,
+                        votes: { yes: 0, no: 0, abstain: 0 },
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        title: "Budowa autostrady A1 - odcinek Warszawa-Łódź",
+                        description: "Przyznanie dodatkowych środków na dokończenie budowy autostrady. Wartość inwestycji: 2,5 mld zł.",
+                        status: "active",
+                        resultsVisible: false,
+                        votes: { yes: 0, no: 0, abstain: 0 },
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                
+                localStorage.setItem('votings', JSON.stringify(defaultVotings));
+                showMessage('Przywrócono domyślne głosowania', 'success');
+                loadAdminVotings();
+                loadVotingSelect();
+                updateDashboard();
+            }
+        }
+        
+        // Pokaż wiadomość
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('formMessage');
+            messageDiv.innerHTML = `
+                <div style="padding: 15px; background: ${type === 'success' ? '#d4edda' : '#f8d7da'}; 
+                           color: ${type === 'success' ? '#155724' : '#721c24'}; 
+                           border-radius: 8px; margin: 10px 0;">
+                    ${type === 'success' ? '✅' : '❌'} ${text}
+                </div>
+            `;
+            
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
