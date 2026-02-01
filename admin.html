@@ -23,7 +23,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+            background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
             min-height: 100vh;
             padding: 20px;
             color: #333;
@@ -122,10 +122,11 @@
             display: flex;
             border-bottom: 2px solid #eee;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         
         .tab {
-            padding: 15px 30px;
+            padding: 15px 25px;
             cursor: pointer;
             border-bottom: 3px solid transparent;
             font-weight: bold;
@@ -185,8 +186,19 @@
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 15px;
-            border-left: 5px solid var(--secondary);
             transition: transform 0.3s;
+        }
+        
+        .admin-voting-item.current {
+            border-left: 5px solid #e74c3c;
+            background: #fff5f5;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.1);
+        }
+        
+        .admin-voting-item.hidden {
+            border-left: 5px solid #95a5a6;
+            background: #f5f5f5;
+            opacity: 0.9;
         }
         
         .admin-voting-item:hover {
@@ -222,44 +234,99 @@
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
+            font-size: 14px;
         }
         
-        .btn-show-results {
-            background: #17a2b8;
+        .btn-set-current {
+            background: #e74c3c;
             color: white;
         }
         
-        .btn-hide-results {
-            background: #6c757d;
+        .btn-hide {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-show {
+            background: #3498db;
             color: white;
         }
         
         .btn-close {
-            background: var(--danger);
+            background: #f39c12;
             color: white;
         }
         
         .btn-open {
-            background: var(--success);
+            background: #27ae60;
             color: white;
         }
         
         .btn-delete {
-            background: #dc3545;
+            background: #c0392b;
             color: white;
         }
         
         .btn-edit {
-            background: var(--warning);
+            background: #9b59b6;
+            color: white;
+        }
+        
+        .btn-show-results {
+            background: #1abc9c;
+            color: white;
+        }
+        
+        .btn-hide-results {
+            background: #7f8c8d;
             color: white;
         }
         
         .admin-btn:hover {
             opacity: 0.9;
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
-        /* Formularz dodawania głosowania */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-closed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .visibility-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .visible-badge {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .hidden-badge {
+            background: #d6d8d9;
+            color: #383d41;
+        }
+        
+        /* Formularz */
         .form-container {
             background: #f8f9fa;
             padding: 25px;
@@ -278,7 +345,7 @@
             color: #555;
         }
         
-        .form-input, .form-textarea {
+        .form-input, .form-textarea, .form-select {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #ddd;
@@ -291,7 +358,7 @@
             resize: vertical;
         }
         
-        .form-input:focus, .form-textarea:focus {
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
             border-color: var(--secondary);
             outline: none;
         }
@@ -320,6 +387,11 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
+        }
+        
+        .btn-primary:hover, .btn-secondary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
         }
         
         /* Tabela głosów */
@@ -373,6 +445,13 @@
             text-align: center;
             padding: 40px;
             color: #666;
+            font-size: 1.1em;
+        }
+        
+        .empty-state i {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #bdc3c7;
         }
         
         .export-btn {
@@ -383,6 +462,14 @@
             border-radius: 5px;
             cursor: pointer;
             margin: 10px 0;
+        }
+        
+        .info-box {
+            background: #e8f4fd;
+            border-left: 5px solid #3498db;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
         }
         
         @keyframes fadeIn {
@@ -434,7 +521,7 @@
                    onkeypress="if(event.key === 'Enter') login()">
             <button class="login-btn" onclick="login()">Zaloguj się</button>
             <p style="margin-top: 20px; color: #666; font-size: 14px;">
-                Głosuj a nie mi tu patrzysz <code></code> 
+                Domyślne hasło: <code>admin123</code> (zmień w kodzie po wdrożeniu)
             </p>
         </div>
         
@@ -454,40 +541,31 @@
             <div id="tab1" class="tab-content active">
                 <h2>Statystyki systemu</h2>
                 
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalVotings">0</div>
-                        <div class="stat-label">Liczba głosowań</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-number" id="activeVotings">0</div>
-                        <div class="stat-label">Aktywne głosowania</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalVotes">0</div>
-                        <div class="stat-label">Wszystkie głosy</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-number" id="uniqueVoters">0</div>
-                        <div class="stat-label">Unikalnych głosujących</div>
-                    </div>
+                <div id="statsContent">
+                    <!-- Statystyki załadują się tutaj -->
+                </div>
+                
+                <div class="info-box">
+                    <h3>📋 Instrukcja początkowego uruchomienia:</h3>
+                    <ol>
+                        <li>Przejdź do zakładki "➕ Nowe głosowanie"</li>
+                        <li>Stwórz pierwsze głosowanie</li>
+                        <li>W zakładce "🗳️ Głosowania" ustaw je jako "bieżące"</li>
+                        <li>Upewnij się, że status to "aktywne"</li>
+                        <li>Strona główna pokaże teraz to głosowanie</li>
+                    </ol>
                 </div>
                 
                 <div class="form-container">
                     <h3>Ustawienia systemu</h3>
                     <div class="admin-actions">
-                        <button class="admin-btn btn-primary" onclick="exportData()">
+                        <button class="admin-btn" onclick="exportData()" 
+                                style="background: var(--secondary); color: white;">
                             📥 Eksportuj wszystkie dane
                         </button>
-                        <button class="admin-btn btn-secondary" onclick="clearAllData()">
-                            🗑️ Wyczyść wszystkie dane (ostrożnie!)
-                        </button>
-                        <button class="admin-btn" onclick="resetToDefault()" 
-                                style="background: #6c757d; color: white;">
-                            🔄 Przywróć domyślne głosowania
+                        <button class="admin-btn" onclick="clearAllData()" 
+                                style="background: var(--danger); color: white;">
+                            🗑️ Wyczyść wszystkie dane
                         </button>
                     </div>
                 </div>
@@ -496,7 +574,7 @@
             <!-- Zakładka 2: Lista głosowań -->
             <div id="tab2" class="tab-content">
                 <h2>Zarządzanie głosowaniami</h2>
-                <p>Kliknij na głosowanie, aby je edytować lub zarządzać jego wynikami.</p>
+                <p>Tylko jedno głosowanie może być "bieżące" (widoczne na stronie głównej).</p>
                 
                 <div id="adminVotingsList" class="admin-voting-list">
                     <!-- Lista głosowań wczyta się tutaj -->
@@ -545,10 +623,21 @@
                         
                         <div class="form-group">
                             <label class="form-label">Status początkowy:</label>
-                            <select id="newVotingStatus" class="form-input">
+                            <select id="newVotingStatus" class="form-select">
                                 <option value="active">Aktywne (można głosować)</option>
                                 <option value="closed">Zamknięte (tylko wyniki)</option>
                             </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Widoczność:</label>
+                            <select id="newVotingVisibility" class="form-select">
+                                <option value="true">Widoczne (bieżące głosowanie)</option>
+                                <option value="false">Ukryte (nie pokazuj na stronie głównej)</option>
+                            </select>
+                            <p style="margin-top: 5px; font-size: 0.9em; color: #666;">
+                                <strong>Uwaga:</strong> Jeśli ustawisz jako "widoczne", to automatycznie ukryje inne głosowania.
+                            </p>
                         </div>
                         
                         <div class="form-actions">
@@ -568,8 +657,8 @@
     </div>
     
     <script>
-        // HASŁO ADMINISTRATORA (zmień to!)
-        const ADMIN_PASSWORD = "adminn132";
+      
+        const ADMIN_PASSWORD = "admin321";
         let isLoggedIn = false;
         
         // Sprawdź czy użytkownik jest już zalogowany
@@ -639,23 +728,65 @@
             const votings = JSON.parse(localStorage.getItem('votings') || '[]');
             const voteDetails = JSON.parse(localStorage.getItem('voteDetails') || '{}');
             const voterHistory = JSON.parse(localStorage.getItem('voterHistory') || '{}');
+            const container = document.getElementById('statsContent');
+            
+            if (votings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>Brak głosowań w systemie</h3>
+                        <p>Stwórz pierwsze głosowanie w zakładce "➕ Nowe głosowanie"</p>
+                    </div>
+                `;
+                return;
+            }
             
             // Liczba głosowań
-            document.getElementById('totalVotings').textContent = votings.length;
+            const totalVotings = votings.length;
             
             // Aktywne głosowania
             const active = votings.filter(v => v.status === 'active').length;
-            document.getElementById('activeVotings').textContent = active;
+            
+            // Bieżące głosowanie
+            const current = votings.filter(v => v.visible === true).length;
             
             // Wszystkie głosy
             let totalVotes = 0;
             votings.forEach(v => {
                 totalVotes += v.votes.yes + v.votes.no + v.votes.abstain;
             });
-            document.getElementById('totalVotes').textContent = totalVotes;
             
             // Unikalni głosujący
-            document.getElementById('uniqueVoters').textContent = Object.keys(voterHistory).length;
+            const uniqueVoters = Object.keys(voterHistory).length;
+            
+            container.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">${totalVotings}</div>
+                        <div class="stat-label">Liczba głosowań</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number">${active}</div>
+                        <div class="stat-label">Aktywne głosowania</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number">${current}</div>
+                        <div class="stat-label">Bieżące głosowanie</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number">${totalVotes}</div>
+                        <div class="stat-label">Wszystkie głosy</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number">${uniqueVoters}</div>
+                        <div class="stat-label">Unikalnych głosujących</div>
+                    </div>
+                </div>
+            `;
         }
         
         // Załaduj listę głosowań do zarządzania
@@ -664,7 +795,13 @@
             const container = document.getElementById('adminVotingsList');
             
             if (votings.length === 0) {
-                container.innerHTML = '<div class="empty-state">Brak głosowań</div>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>Brak głosowań</h3>
+                        <p>Stwórz pierwsze głosowanie w zakładce "➕ Nowe głosowanie"</p>
+                    </div>
+                `;
                 return;
             }
             
@@ -672,11 +809,21 @@
             
             votings.forEach(voting => {
                 const totalVotes = voting.votes.yes + voting.votes.no + voting.votes.abstain;
+                const isCurrent = voting.visible === true;
+                const isHidden = voting.visible === false;
                 
                 container.innerHTML += `
-                    <div class="admin-voting-item">
+                    <div class="admin-voting-item ${isCurrent ? 'current' : ''} ${isHidden ? 'hidden' : ''}">
                         <div class="admin-voting-header">
-                            <h3>${voting.title}</h3>
+                            <h3>${voting.title} 
+                                ${isCurrent ? '<span class="status-badge status-active">BIEŻĄCE</span>' : ''}
+                                ${voting.status === 'active' ? 
+                                    '<span class="status-badge status-active">AKTYWNE</span>' : 
+                                    '<span class="status-badge status-closed">ZAMKNIĘTE</span>'}
+                                ${voting.visible === true ? 
+                                    '<span class="visibility-badge visible-badge">WIDOCZNE</span>' : 
+                                    '<span class="visibility-badge hidden-badge">UKRYTE</span>'}
+                            </h3>
                             <span class="voting-id">ID: ${voting.id}</span>
                         </div>
                         
@@ -684,15 +831,36 @@
                         
                         <div style="margin: 10px 0; color: #666; font-size: 0.9em;">
                             Utworzono: ${new Date(voting.createdAt).toLocaleDateString('pl-PL')} | 
-                            Głosy: ${totalVotes} | 
-                            Status: <strong>${voting.status === 'active' ? 'AKTYWNE' : 'ZAMKNIĘTE'}</strong>
+                            Głosy: ${totalVotes} (ZA: ${voting.votes.yes}, PRZECIW: ${voting.votes.no}, WSTRZYMUJĄCY SIĘ: ${voting.votes.abstain})
                         </div>
                         
                         <div class="admin-actions">
+                            ${!isCurrent ? 
+                                `<button class="admin-btn btn-set-current" onclick="setAsCurrent(${voting.id})">
+                                    ⭐ Ustaw jako bieżące
+                                </button>` 
+                                : ''
+                            }
+                            
+                            ${isCurrent && voting.status === 'active' ? 
+                                `<button class="admin-btn btn-hide" onclick="hideVoting(${voting.id})">
+                                    👁️ Ukryj głosowanie
+                                </button>` 
+                                : ''
+                            }
+                            
+                            ${isHidden ? 
+                                `<button class="admin-btn btn-show" onclick="showVoting(${voting.id})">
+                                    👁️ Pokaż głosowanie
+                                </button>` 
+                                : ''
+                            }
+                            
                             ${voting.status === 'active' ? 
                                 `<button class="admin-btn btn-close" onclick="toggleVotingStatus(${voting.id})">
                                     🔒 Zamknij głosowanie
-                                </button>` :
+                                </button>` 
+                                : 
                                 `<button class="admin-btn btn-open" onclick="toggleVotingStatus(${voting.id})">
                                     🔓 Otwórz głosowanie
                                 </button>`
@@ -700,10 +868,11 @@
                             
                             ${voting.resultsVisible ? 
                                 `<button class="admin-btn btn-hide-results" onclick="toggleResultsVisibility(${voting.id})">
-                                    👁️ Ukryj wyniki
-                                </button>` :
+                                    📊 Ukryj wyniki
+                                </button>` 
+                                : 
                                 `<button class="admin-btn btn-show-results" onclick="toggleResultsVisibility(${voting.id})">
-                                    👁️ Pokaż wyniki
+                                    📊 Pokaż wyniki
                                 </button>`
                             }
                             
@@ -720,6 +889,60 @@
             });
         }
         
+        // Ustaw głosowanie jako bieżące (widoczne)
+        function setAsCurrent(votingId) {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            
+            // Najpierw ukryj wszystkie głosowania
+            votings.forEach(v => {
+                v.visible = false;
+            });
+            
+            // Teraz pokaż wybrane głosowanie
+            const votingIndex = votings.findIndex(v => v.id === votingId);
+            if (votingIndex !== -1) {
+                votings[votingIndex].visible = true;
+                // Ustaw jako aktywne jeśli było zamknięte
+                votings[votingIndex].status = 'active';
+                localStorage.setItem('votings', JSON.stringify(votings));
+                
+                showMessage('Głosowanie ustawione jako bieżące!', 'success');
+                loadAdminVotings();
+                loadVotingSelect();
+                updateDashboard();
+            }
+        }
+        
+        // Ukryj głosowanie
+        function hideVoting(votingId) {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const votingIndex = votings.findIndex(v => v.id === votingId);
+            
+            if (votingIndex !== -1) {
+                votings[votingIndex].visible = false;
+                localStorage.setItem('votings', JSON.stringify(votings));
+                
+                showMessage('Głosowanie ukryte! Na stronie głównej nie będzie widoczne.', 'success');
+                loadAdminVotings();
+                updateDashboard();
+            }
+        }
+        
+        // Pokaż głosowanie
+        function showVoting(votingId) {
+            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
+            const votingIndex = votings.findIndex(v => v.id === votingId);
+            
+            if (votingIndex !== -1) {
+                votings[votingIndex].visible = true;
+                localStorage.setItem('votings', JSON.stringify(votings));
+                
+                showMessage('Głosowanie widoczne!', 'success');
+                loadAdminVotings();
+                updateDashboard();
+            }
+        }
+        
         // Załaduj select z głosowaniami
         function loadVotingSelect() {
             const votings = JSON.parse(localStorage.getItem('votings') || '[]');
@@ -730,7 +953,7 @@
             votings.forEach(voting => {
                 select.innerHTML += `
                     <option value="${voting.id}">
-                        ${voting.id}. ${voting.title} (${voting.status === 'active' ? 'aktywne' : 'zamknięte'})
+                        ${voting.id}. ${voting.title} (${voting.visible ? 'widoczne' : 'ukryte'}, ${voting.status === 'active' ? 'aktywne' : 'zamknięte'})
                     </option>
                 `;
             });
@@ -766,12 +989,16 @@
             const abstainVotes = voteDetails.filter(v => v.vote === 'abstain').length;
             
             let tableHTML = `
-                <div style="margin: 20px 0;">
+                <div class="info-box">
                     <h3>${voting.title}</h3>
-                    <p>Łącznie głosów: <strong>${totalVotes}</strong> | 
-                    Za: <strong>${yesVotes}</strong> | 
-                    Przeciw: <strong>${noVotes}</strong> | 
-                    Wstrzymujący się: <strong>${abstainVotes}</strong></p>
+                    <p>${voting.description}</p>
+                    <p><strong>Status:</strong> ${voting.status === 'active' ? 'Aktywne' : 'Zamknięte'} | 
+                    <strong>Widoczność:</strong> ${voting.visible ? 'Widoczne' : 'Ukryte'} | 
+                    <strong>Wyniki widoczne:</strong> ${voting.resultsVisible ? 'Tak' : 'Nie'}</p>
+                    <p><strong>Łącznie głosów:</strong> ${totalVotes} | 
+                    <strong>Za:</strong> ${yesVotes} | 
+                    <strong>Przeciw:</strong> ${noVotes} | 
+                    <strong>Wstrzymujący się:</strong> ${abstainVotes}</p>
                 </div>
             `;
             
@@ -870,6 +1097,7 @@
                 document.getElementById('newVotingTitle').value = voting.title;
                 document.getElementById('newVotingDesc').value = voting.description;
                 document.getElementById('newVotingStatus').value = voting.status;
+                document.getElementById('newVotingVisibility').value = voting.visible.toString();
                 
                 // Zmień tekst przycisku
                 const form = document.getElementById('newVotingForm');
@@ -893,9 +1121,19 @@
             const votingIndex = votings.findIndex(v => v.id === votingId);
             
             if (votingIndex !== -1) {
+                const isVisible = document.getElementById('newVotingVisibility').value === 'true';
+                
+                // Jeśli ustawiamy jako widoczne, ukryj inne
+                if (isVisible) {
+                    votings.forEach(v => {
+                        v.visible = false;
+                    });
+                }
+                
                 votings[votingIndex].title = document.getElementById('newVotingTitle').value;
                 votings[votingIndex].description = document.getElementById('newVotingDesc').value;
                 votings[votingIndex].status = document.getElementById('newVotingStatus').value;
+                votings[votingIndex].visible = isVisible;
                 
                 localStorage.setItem('votings', JSON.stringify(votings));
                 showMessage('Głosowanie zaktualizowane!', 'success');
@@ -910,10 +1148,28 @@
         
         // Usuń głosowanie
         function deleteVoting(votingId) {
-            if (confirm('Czy na pewno chcesz usunąć to głosowanie? Ta operacja jest nieodwracalna!')) {
+            if (confirm('Czy na pewno chcesz usunąć to głosowanie? Ta operacja usunie również wszystkie oddane głosy!')) {
                 let votings = JSON.parse(localStorage.getItem('votings') || '[]');
+                const votingToDelete = votings.find(v => v.id === votingId);
+                
+                // Usuń głosowanie
                 votings = votings.filter(v => v.id !== votingId);
                 localStorage.setItem('votings', JSON.stringify(votings));
+                
+                // Usuń głosy z voteDetails
+                let voteDetails = JSON.parse(localStorage.getItem('voteDetails') || '{}');
+                delete voteDetails[votingId];
+                localStorage.setItem('voteDetails', JSON.stringify(voteDetails));
+                
+                // Usuń z historii głosujących
+                let voterHistory = JSON.parse(localStorage.getItem('voterHistory') || '{}');
+                for (const voter in voterHistory) {
+                    voterHistory[voter] = voterHistory[voter].filter(id => id !== votingId);
+                    if (voterHistory[voter].length === 0) {
+                        delete voterHistory[voter];
+                    }
+                }
+                localStorage.setItem('voterHistory', JSON.stringify(voterHistory));
                 
                 showMessage('Głosowanie usunięte!', 'success');
                 loadAdminVotings();
@@ -929,10 +1185,18 @@
             const title = document.getElementById('newVotingTitle').value;
             const description = document.getElementById('newVotingDesc').value;
             const status = document.getElementById('newVotingStatus').value;
+            const visibility = document.getElementById('newVotingVisibility').value === 'true';
             
             // Generuj nowe ID
             let votings = JSON.parse(localStorage.getItem('votings') || '[]');
             const newId = votings.length > 0 ? Math.max(...votings.map(v => v.id)) + 1 : 1;
+            
+            // Jeśli ustawiamy jako widoczne, ukryj wszystkie inne
+            if (visibility) {
+                votings.forEach(v => {
+                    v.visible = false;
+                });
+            }
             
             // Dodaj nowe głosowanie
             votings.push({
@@ -940,6 +1204,7 @@
                 title: title,
                 description: description,
                 status: status,
+                visible: visibility,
                 resultsVisible: false,
                 votes: { yes: 0, no: 0, abstain: 0 },
                 createdAt: new Date().toISOString()
@@ -981,7 +1246,8 @@
             // Nagłówek
             csvContent += `Głosowanie: ${voting.title}\n`;
             csvContent += `Opis: ${voting.description}\n`;
-            csvContent += `Status: ${voting.status}\n\n`;
+            csvContent += `Status: ${voting.status}\n`;
+            csvContent += `Widoczne: ${voting.visible ? 'Tak' : 'Nie'}\n\n`;
             
             // Dane
             csvContent += "Lp.,Głosujący,Głos,Data i godzina\n";
@@ -1033,38 +1299,6 @@
             }
         }
         
-        // Przywróć domyślne głosowania
-        function resetToDefault() {
-            if (confirm('Przywrócić domyślne głosowania? To usunie aktualne głosowania, ale zachowa oddane głosy.')) {
-                const defaultVotings = [
-                    {
-                        id: 1,
-                        title: "Nowelizacja ustawy o ochronie środowiska",
-                        description: "Głosowanie nad wprowadzeniem zaostrzonych norm emisji CO2 dla przedsiębiorstw przemysłowych. Projekt zakłada redukcję emisji o 40% do 2030 roku.",
-                        status: "active",
-                        resultsVisible: false,
-                        votes: { yes: 0, no: 0, abstain: 0 },
-                        createdAt: new Date().toISOString()
-                    },
-                    {
-                        id: 2,
-                        title: "Budowa autostrady A1 - odcinek Warszawa-Łódź",
-                        description: "Przyznanie dodatkowych środków na dokończenie budowy autostrady. Wartość inwestycji: 2,5 mld zł.",
-                        status: "active",
-                        resultsVisible: false,
-                        votes: { yes: 0, no: 0, abstain: 0 },
-                        createdAt: new Date().toISOString()
-                    }
-                ];
-                
-                localStorage.setItem('votings', JSON.stringify(defaultVotings));
-                showMessage('Przywrócono domyślne głosowania', 'success');
-                loadAdminVotings();
-                loadVotingSelect();
-                updateDashboard();
-            }
-        }
-        
         // Pokaż wiadomość
         function showMessage(text, type) {
             const messageDiv = document.getElementById('formMessage');
@@ -1081,5 +1315,8 @@
             }, 3000);
         }
     </script>
+    
+    <!-- Font Awesome dla ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </body>
 </html>
