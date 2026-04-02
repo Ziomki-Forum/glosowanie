@@ -3,114 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Administratora - Głosowanie SU</title>
+    <title>Panel Admina - Głosowanie SU</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --light: #ecf0f1;
-            --dark: #2c3e50;
-        }
+        :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --danger: #e74c3c; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; }
-        h1 { color: var(--primary); margin-bottom: 10px; }
-        .subtitle { color: #666; margin-bottom: 20px; }
-        .back-link { display: inline-block; background: #7f8c8d; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; margin-bottom: 20px; font-weight: bold; }
-        .back-link:hover { background: #6c7b7d; }
-        /* Sekcja logowania */
-        #loginSection { max-width: 500px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center; }
-        .login-title { color: var(--primary); margin-bottom: 20px; }
-        .login-input { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 8px; margin: 20px 0; }
-        .login-btn { background: var(--success); color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; transition: background 0.3s; }
-        .login-btn:hover { background: #219a52; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; }
+        .back-link { display: inline-block; background: #7f8c8d; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; margin-bottom: 20px; }
+        .login-box { max-width: 400px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .login-box input, .login-box button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; }
+        .login-box button { background: var(--success); color: white; font-weight: bold; cursor: pointer; }
+        .error { color: red; margin-top: 10px; }
         .admin-panel { display: none; }
-        .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab { padding: 15px 25px; cursor: pointer; border-bottom: 3px solid transparent; font-weight: bold; color: #666; }
-        .tab.active { color: var(--secondary); border-bottom: 3px solid var(--secondary); }
+        .tabs { display: flex; gap: 10px; border-bottom: 1px solid #ccc; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { padding: 10px 20px; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab.active { border-bottom: 3px solid var(--secondary); font-weight: bold; color: var(--secondary); }
         .tab-content { display: none; padding: 20px 0; }
-        .tab-content.active { display: block; animation: fadeIn 0.5s; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }
-        .stat-card { background: linear-gradient(135deg, var(--secondary), #2980b9); color: white; padding: 25px; border-radius: 10px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .stat-number { font-size: 36px; font-weight: bold; margin: 10px 0; }
-        .stat-label { font-size: 14px; opacity: 0.9; }
-        .admin-voting-list { margin-top: 20px; }
-        .admin-voting-item { background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 15px; transition: transform 0.3s; }
-        .admin-voting-item.current { border-left: 5px solid #e74c3c; background: #fff5f5; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.1); }
-        .admin-voting-item.hidden { border-left: 5px solid #95a5a6; background: #f5f5f5; opacity: 0.9; }
-        .admin-voting-item:hover { transform: translateX(5px); }
-        .admin-voting-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
-        .voting-id { background: var(--primary); color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8em; }
-        .admin-actions { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        .admin-btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.3s; font-size: 14px; }
-        .btn-set-current { background: #e74c3c; color: white; }
-        .btn-hide { background: #95a5a6; color: white; }
-        .btn-show { background: #3498db; color: white; }
-        .btn-close { background: #f39c12; color: white; }
-        .btn-open { background: #27ae60; color: white; }
-        .btn-delete { background: #c0392b; color: white; }
-        .btn-edit { background: #9b59b6; color: white; }
-        .btn-show-results { background: #1abc9c; color: white; }
-        .btn-hide-results { background: #7f8c8d; color: white; }
-        .admin-btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .status-badge, .visibility-badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-left: 10px; }
-        .status-active { background: #d4edda; color: #155724; }
-        .status-closed { background: #f8d7da; color: #721c24; }
-        .visible-badge { background: #d1ecf1; color: #0c5460; }
-        .hidden-badge { background: #d6d8d9; color: #383d41; }
-        .form-container { background: #f8f9fa; padding: 25px; border-radius: 10px; margin: 20px 0; }
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
-        .form-input, .form-textarea, .form-select { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
-        .form-textarea { height: 120px; resize: vertical; }
-        .btn-primary { background: var(--success); color: white; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn-secondary { background: #6c757d; color: white; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .votes-table-container { overflow-x: auto; margin-top: 20px; }
-        .votes-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .votes-table th { background: var(--primary); color: white; padding: 15px; text-align: left; }
-        .votes-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
-        .votes-table tr:hover { background: #f5f5f5; }
-        .vote-yes-cell { color: var(--success); font-weight: bold; }
-        .vote-no-cell { color: var(--danger); font-weight: bold; }
-        .vote-abstain-cell { color: var(--warning); font-weight: bold; }
-        .empty-state { text-align: center; padding: 40px; color: #666; font-size: 1.1em; }
-        .export-btn { background: var(--secondary); color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 10px 0; }
-        .info-box { background: #e8f4fd; border-left: 5px solid #3498db; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .logout-btn { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 768px) { .container { padding: 15px; } .tabs { flex-direction: column; } .tab { text-align: center; } .admin-actions { flex-direction: column; } .admin-btn { width: 100%; } }
+        .tab-content.active { display: block; }
+        .logout-btn { background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .stat-card { background: var(--secondary); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-number { font-size: 32px; font-weight: bold; }
+        .admin-voting-item { background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .admin-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .admin-btn { padding: 6px 12px; border: none; border-radius: 5px; cursor: pointer; color: white; }
+        .btn-set-current { background: #e74c3c; }
+        .btn-delete { background: #c0392b; }
+        .form-container { background: #f8f9fa; padding: 20px; border-radius: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        .btn-primary { background: var(--success); color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        .votes-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .votes-table th, .votes-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .vote-yes-cell { color: green; font-weight: bold; }
+        .vote-no-cell { color: red; font-weight: bold; }
+        .vote-abstain-cell { color: orange; font-weight: bold; }
+        .empty-state { text-align: center; padding: 40px; color: #666; }
+        .info-box { background: #e8f4fd; padding: 15px; border-radius: 8px; margin: 15px 0; }
     </style>
 </head>
 <body>
 <div class="container">
     <a href="index.html" class="back-link">← Powrót do głosowania</a>
-    <header><h1>🔐 Panel Administratora</h1><p class="subtitle">Zarządzaj głosowaniami i przeglądaj głosy</p></header>
 
-    <!-- Sekcja logowania Firebase -->
-    <div id="loginSection">
-        <h2 class="login-title">Logowanie do panelu</h2>
-        <p>Wprowadź e-mail i hasło administratora (utworzone w Firebase Auth)</p>
-        <input type="email" id="adminEmail" class="login-input" placeholder="E-mail">
-        <input type="password" id="adminPassword" class="login-input" placeholder="Hasło">
-        <button class="login-btn" onclick="login()">Zaloguj się</button>
-        <div id="loginError" style="color: red; margin-top: 10px;"></div>
+    <!-- Sekcja logowania -->
+    <div id="loginSection" class="login-box">
+        <h2>Logowanie administratora</h2>
+        <p>Wprowadź dane z Firebase Authentication</p>
+        <input type="email" id="adminEmail" placeholder="E-mail administratora">
+        <input type="password" id="adminPassword" placeholder="Hasło">
+        <button onclick="login()">Zaloguj się</button>
+        <div id="loginError" class="error"></div>
     </div>
 
     <!-- Panel admina (widoczny po zalogowaniu) -->
@@ -123,84 +67,109 @@
             <div class="tab" onclick="switchTab(4)">➕ Nowe głosowanie</div>
         </div>
 
-        <div id="tab1" class="tab-content active"><h2>Statystyki systemu</h2><div id="statsContent"></div><div class="info-box"><h3>Instrukcja:</h3><ol><li>Stwórz głosowanie w zakładce "Nowe głosowanie"</li><li>Ustaw je jako "bieżące" (widoczne na stronie głównej)</li><li>Zmień status na aktywne (jeśli nie jest)</li><li>Możesz ukrywać/wyświetlać wyniki dla użytkowników</li></ol></div><div class="form-container"><h3>Ustawienia systemu</h3><div class="admin-actions"><button class="admin-btn" onclick="exportAllData()" style="background: var(--secondary);">📥 Eksportuj wszystkie dane</button><button class="admin-btn" onclick="clearAllData()" style="background: var(--danger);">🗑️ Wyczyść wszystkie dane</button></div></div></div>
-        <div id="tab2" class="tab-content"><h2>Zarządzanie głosowaniami</h2><p>Tylko jedno głosowanie może być "bieżące" (widoczne na stronie głównej).</p><div id="adminVotingsList" class="admin-voting-list"></div></div>
-        <div id="tab3" class="tab-content"><h2>Szczegółowe wyniki głosów</h2><p>Tylko administrator może zobaczyć kto na co głosował.</p><div class="form-group"><label class="form-label">Wybierz głosowanie:</label><select id="votingSelect" class="form-input" onchange="loadVotingDetails()"><option value="">-- Wybierz głosowanie --</option></select></div><div id="votesDetails"></div></div>
-        <div id="tab4" class="tab-content"><h2>Dodaj nowe głosowanie</h2><div class="form-container"><form id="newVotingForm"><div class="form-group"><label class="form-label">Tytuł:</label><input type="text" id="newVotingTitle" class="form-input" required></div><div class="form-group"><label class="form-label">Opis:</label><textarea id="newVotingDesc" class="form-textarea" required></textarea></div><div class="form-group"><label class="form-label">Status początkowy:</label><select id="newVotingStatus" class="form-select"><option value="active">Aktywne (można głosować)</option><option value="closed">Zamknięte</option></select></div><div class="form-group"><label class="form-label">Widoczność:</label><select id="newVotingVisibility" class="form-select"><option value="true">Widoczne (bieżące)</option><option value="false">Ukryte</option></select></div><div class="form-actions"><button type="submit" class="btn-primary">➕ Dodaj głosowanie</button><button type="button" class="btn-secondary" onclick="clearForm()">❌ Wyczyść</button></div></form><div id="formMessage"></div></div></div>
+        <div id="tab1" class="tab-content active">
+            <h2>Statystyki systemu</h2>
+            <div id="statsContent">Ładowanie...</div>
+            <div class="info-box">Instrukcja: Stwórz głosowanie, ustaw jako bieżące i otwórz.</div>
+            <div class="form-container">
+                <button class="admin-btn" onclick="exportAllData()" style="background: #3498db;">📥 Eksportuj wszystkie dane</button>
+                <button class="admin-btn" onclick="clearAllData()" style="background: #e74c3c;">🗑️ Wyczyść wszystkie dane</button>
+            </div>
+        </div>
+        <div id="tab2" class="tab-content">
+            <h2>Zarządzanie głosowaniami</h2>
+            <div id="adminVotingsList">Ładowanie...</div>
+        </div>
+        <div id="tab3" class="tab-content">
+            <h2>Szczegóły głosów</h2>
+            <div class="form-group">
+                <label>Wybierz głosowanie:</label>
+                <select id="votingSelect" onchange="loadVotingDetails()"><option>-- Wybierz --</option></select>
+            </div>
+            <div id="votesDetails"></div>
+        </div>
+        <div id="tab4" class="tab-content">
+            <h2>Dodaj nowe głosowanie</h2>
+            <div class="form-container">
+                <div class="form-group"><label>Tytuł:</label><input type="text" id="newTitle" class="form-input"></div>
+                <div class="form-group"><label>Opis:</label><textarea id="newDesc" class="form-textarea"></textarea></div>
+                <div class="form-group"><label>Status:</label><select id="newStatus"><option value="active">Aktywne</option><option value="closed">Zamknięte</option></select></div>
+                <div class="form-group"><label>Widoczność:</label><select id="newVisible"><option value="true">Widoczne (bieżące)</option><option value="false">Ukryte</option></select></div>
+                <button class="btn-primary" onclick="addVoting()">➕ Dodaj głosowanie</button>
+            </div>
+            <div id="formMessage"></div>
+        </div>
     </div>
 </div>
 
 <script type="module">
+    // ======================= KONFIGURACJA FIREBASE =======================
+    const firebaseConfig = {
+        apiKey: "AIzaSyCZx26yk4sxdAKewKSyuGzCEWTOU8n4zcM",
+        authDomain: "szkolne-glosowanie.firebaseapp.com",
+        projectId: "szkolne-glosowanie",
+        storageBucket: "szkolne-glosowanie.firebasestorage.app",
+        messagingSenderId: "700574499107",
+        appId: "1:700574499107:web:b96aafa286252370cccc96"
+    };
+    // ====================================================================
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, writeBatch, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    /* ========== TU WPISZ SWÓJ firebaseConfig ========== */
-    const firebaseConfig = {
-  apiKey: "AIzaSyCZx26yk4sxdAKewKSyuGzCEWTOU8n4zcM",
-  authDomain: "szkolne-glosowanie.firebaseapp.com",
-  projectId: "szkolne-glosowanie",
-  storageBucket: "szkolne-glosowanie.firebasestorage.app",
-  messagingSenderId: "700574499107",
-  appId: "1:700574499107:web:b96aafa286252370cccc96"
-};
-    /* ================================================= */
+    import { getFirestore, collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentAdminUid = null;
+    // Globalne referencje
+    let currentAdmin = null;
 
-    // Elementy DOM
-    const loginSection = document.getElementById('loginSection');
-    const adminPanel = document.getElementById('adminPanel');
-    const loginError = document.getElementById('loginError');
+    // Funkcje globalne (dostępne z onclick)
+    window.login = async function() {
+        const email = document.getElementById('adminEmail').value;
+        const pwd = document.getElementById('adminPassword').value;
+        const errorDiv = document.getElementById('loginError');
+        errorDiv.innerText = '';
+        try {
+            await signInWithEmailAndPassword(auth, email, pwd);
+        } catch (err) {
+            errorDiv.innerText = 'Błąd: ' + err.message;
+        }
+    };
 
-    // Sprawdzenie stanu logowania
+    window.logout = async function() {
+        await signOut(auth);
+    };
+
+    window.switchTab = function(tabNum) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(`tab${tabNum}`).classList.add('active');
+        document.querySelectorAll('.tab')[tabNum-1].classList.add('active');
+        if (tabNum === 3) loadVotingSelect();
+    };
+
+    // Stan logowania
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            currentAdminUid = user.uid;
-            loginSection.style.display = 'none';
-            adminPanel.style.display = 'block';
-            // Załaduj dane
+            currentAdmin = user;
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
             updateDashboard();
             loadAdminVotings();
             loadVotingSelect();
         } else {
-            currentAdminUid = null;
-            loginSection.style.display = 'block';
-            adminPanel.style.display = 'none';
+            currentAdmin = null;
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
         }
     });
-
-    window.login = async () => {
-        const email = document.getElementById('adminEmail').value;
-        const pwd = document.getElementById('adminPassword').value;
-        loginError.innerText = '';
-        try {
-            await signInWithEmailAndPassword(auth, email, pwd);
-        } catch (err) {
-            loginError.innerText = 'Błąd logowania: ' + err.message;
-        }
-    };
-
-    window.logout = async () => {
-        await signOut(auth);
-    };
-
-    // Funkcje pomocnicze
-    function showMessage(msg, isError = false) {
-        const div = document.getElementById('formMessage');
-        if (!div) return;
-        div.innerHTML = `<div style="padding:15px; background:${isError ? '#f8d7da' : '#d4edda'}; color:${isError ? '#721c24' : '#155724'}; border-radius:8px;">${isError ? '❌' : '✅'} ${msg}</div>`;
-        setTimeout(() => div.innerHTML = '', 3000);
-    }
 
     async function updateDashboard() {
         const snap = await getDocs(collection(db, "votings"));
         const votings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        const totalVotings = votings.length;
+        const total = votings.length;
         const active = votings.filter(v => v.status === 'active').length;
         const current = votings.filter(v => v.visible === true).length;
         let totalVotes = 0;
@@ -208,54 +177,32 @@
             const votes = v.votes || { yes:0, no:0, abstain:0 };
             totalVotes += votes.yes + votes.no + votes.abstain;
         }
-        // Liczba unikalnych głosujących - trzeba zliczyć subkolekcje voteDetails/*/votes
-        let uniqueVoters = 0;
-        const allVotingsSnap = await getDocs(collection(db, "votings"));
-        const votersSet = new Set();
-        for (const docSnap of allVotingsSnap.docs) {
-            const subCol = collection(db, "voteDetails", docSnap.id, "votes");
-            const votesSnap = await getDocs(subCol);
-            votesSnap.forEach(voteDoc => votersSet.add(voteDoc.id));
-        }
-        uniqueVoters = votersSet.size;
-
-        const container = document.getElementById('statsContent');
-        container.innerHTML = `<div class="stats-grid"><div class="stat-card"><div class="stat-number">${totalVotings}</div><div class="stat-label">Liczba głosowań</div></div><div class="stat-card"><div class="stat-number">${active}</div><div class="stat-label">Aktywne</div></div><div class="stat-card"><div class="stat-number">${current}</div><div class="stat-label">Bieżące</div></div><div class="stat-card"><div class="stat-number">${totalVotes}</div><div class="stat-label">Wszystkie głosy</div></div><div class="stat-card"><div class="stat-number">${uniqueVoters}</div><div class="stat-label">Głosujący</div></div></div>`;
+        document.getElementById('statsContent').innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-number">${total}</div><div>Głosowań</div></div>
+                <div class="stat-card"><div class="stat-number">${active}</div><div>Aktywnych</div></div>
+                <div class="stat-card"><div class="stat-number">${current}</div><div>Bieżących</div></div>
+                <div class="stat-card"><div class="stat-number">${totalVotes}</div><div>Głosów</div></div>
+            </div>
+        `;
     }
 
     async function loadAdminVotings() {
         const snap = await getDocs(collection(db, "votings"));
         const votings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         const container = document.getElementById('adminVotingsList');
-        if (votings.length === 0) {
-            container.innerHTML = '<div class="empty-state">Brak głosowań. Utwórz nowe.</div>';
-            return;
-        }
+        if (votings.length === 0) { container.innerHTML = '<div class="empty-state">Brak głosowań</div>'; return; }
         container.innerHTML = '';
-        for (let voting of votings) {
-            const total = (voting.votes?.yes || 0) + (voting.votes?.no || 0) + (voting.votes?.abstain || 0);
-            const isCurrent = voting.visible === true;
-            const isHidden = voting.visible === false;
+        for (let v of votings) {
+            const total = (v.votes?.yes||0)+(v.votes?.no||0)+(v.votes?.abstain||0);
             container.innerHTML += `
-                <div class="admin-voting-item ${isCurrent ? 'current' : ''} ${isHidden ? 'hidden' : ''}">
-                    <div class="admin-voting-header">
-                        <h3>${escapeHtml(voting.title)} 
-                            ${isCurrent ? '<span class="status-badge status-active">BIEŻĄCE</span>' : ''}
-                            ${voting.status === 'active' ? '<span class="status-badge status-active">AKTYWNE</span>' : '<span class="status-badge status-closed">ZAMKNIĘTE</span>'}
-                            ${voting.visible ? '<span class="visibility-badge visible-badge">WIDOCZNE</span>' : '<span class="visibility-badge hidden-badge">UKRYTE</span>'}
-                        </h3>
-                        <span class="voting-id">ID: ${voting.id}</span>
-                    </div>
-                    <p>${escapeHtml(voting.description)}</p>
-                    <div style="margin:10px 0; color:#666;">Utworzono: ${new Date(voting.createdAt).toLocaleDateString()} | Głosy: ZA:${voting.votes?.yes||0}, PRZECIW:${voting.votes?.no||0}, WSTRZ:${voting.votes?.abstain||0}</div>
+                <div class="admin-voting-item">
+                    <h3>${escapeHtml(v.title)} ${v.visible ? '⭐' : ''}</h3>
+                    <p>${escapeHtml(v.description)}</p>
+                    <div>Status: ${v.status} | Głosy: ZA:${v.votes?.yes||0} PRZECIW:${v.votes?.no||0} WSTRZ:${v.votes?.abstain||0}</div>
                     <div class="admin-actions">
-                        ${!isCurrent ? `<button class="admin-btn btn-set-current" onclick="setAsCurrent('${voting.id}')">⭐ Ustaw jako bieżące</button>` : ''}
-                        ${isCurrent && voting.status==='active' ? `<button class="admin-btn btn-hide" onclick="hideVoting('${voting.id}')">👁️ Ukryj</button>` : ''}
-                        ${isHidden ? `<button class="admin-btn btn-show" onclick="showVoting('${voting.id}')">👁️ Pokaż</button>` : ''}
-                        ${voting.status === 'active' ? `<button class="admin-btn btn-close" onclick="toggleStatus('${voting.id}')">🔒 Zamknij</button>` : `<button class="admin-btn btn-open" onclick="toggleStatus('${voting.id}')">🔓 Otwórz</button>`}
-                        ${voting.resultsVisible ? `<button class="admin-btn btn-hide-results" onclick="toggleResults('${voting.id}')">📊 Ukryj wyniki</button>` : `<button class="admin-btn btn-show-results" onclick="toggleResults('${voting.id}')">📊 Pokaż wyniki</button>`}
-                        <button class="admin-btn btn-edit" onclick="editVoting('${voting.id}')">✏️ Edytuj</button>
-                        <button class="admin-btn btn-delete" onclick="deleteVoting('${voting.id}')">🗑️ Usuń</button>
+                        <button class="admin-btn btn-set-current" onclick="setAsCurrent('${v.id}')">Ustaw bieżące</button>
+                        <button class="admin-btn btn-delete" onclick="deleteVoting('${v.id}')">Usuń</button>
                     </div>
                 </div>
             `;
@@ -263,224 +210,125 @@
     }
 
     window.setAsCurrent = async (id) => {
-        const votingsSnap = await getDocs(collection(db, "votings"));
+        const all = await getDocs(collection(db, "votings"));
         const batch = writeBatch(db);
-        votingsSnap.forEach(docSnap => {
-            batch.update(docSnap.ref, { visible: false });
-        });
-        const votingRef = doc(db, "votings", id);
-        batch.update(votingRef, { visible: true, status: 'active' });
+        all.forEach(d => batch.update(d.ref, { visible: false }));
+        batch.update(doc(db, "votings", id), { visible: true });
         await batch.commit();
-        showMessage('Ustawiono jako bieżące');
         loadAdminVotings();
         updateDashboard();
     };
-    window.hideVoting = async (id) => { await updateDoc(doc(db,"votings",id), { visible: false }); showMessage('Ukryto'); loadAdminVotings(); updateDashboard(); };
-    window.showVoting = async (id) => { await updateDoc(doc(db,"votings",id), { visible: true }); showMessage('Pokazano'); loadAdminVotings(); updateDashboard(); };
-    window.toggleStatus = async (id) => {
-        const ref = doc(db,"votings",id);
-        const snap = await getDoc(ref);
-        const newStatus = snap.data().status === 'active' ? 'closed' : 'active';
-        await updateDoc(ref, { status: newStatus });
-        showMessage(`Status zmieniony na ${newStatus}`);
-        loadAdminVotings();
-        updateDashboard();
-    };
-    window.toggleResults = async (id) => {
-        const ref = doc(db,"votings",id);
-        const snap = await getDoc(ref);
-        const newVal = !snap.data().resultsVisible;
-        await updateDoc(ref, { resultsVisible: newVal });
-        showMessage(`Wyniki ${newVal ? 'widoczne' : 'ukryte'}`);
-        loadAdminVotings();
-    };
+
     window.deleteVoting = async (id) => {
-        if (!confirm('Usunąć głosowanie? Usunie też wszystkie oddane głosy.')) return;
-        // Usuń subkolekcję votes
-        const subCol = collection(db, "voteDetails", id, "votes");
-        const subSnap = await getDocs(subCol);
+        if (!confirm('Usunąć głosowanie i wszystkie głosy?')) return;
+        const subVotes = collection(db, "voteDetails", id, "votes");
+        const subSnap = await getDocs(subVotes);
         const batch = writeBatch(db);
-        subSnap.forEach(docSnap => batch.delete(docSnap.ref));
+        subSnap.forEach(s => batch.delete(s.ref));
         batch.delete(doc(db, "voteDetails", id));
         batch.delete(doc(db, "votings", id));
         await batch.commit();
-        showMessage('Usunięto');
         loadAdminVotings();
         loadVotingSelect();
         updateDashboard();
     };
-    window.editVoting = async (id) => {
-        const snap = await getDoc(doc(db, "votings", id));
-        if (!snap.exists()) return;
-        const data = snap.data();
-        document.getElementById('newVotingTitle').value = data.title;
-        document.getElementById('newVotingDesc').value = data.description;
-        document.getElementById('newVotingStatus').value = data.status;
-        document.getElementById('newVotingVisibility').value = data.visible.toString();
-        const submitBtn = document.querySelector('#newVotingForm .btn-primary');
-        submitBtn.innerHTML = '💾 Zapisz zmiany';
-        const form = document.getElementById('newVotingForm');
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const title = document.getElementById('newVotingTitle').value;
-            const desc = document.getElementById('newVotingDesc').value;
-            const status = document.getElementById('newVotingStatus').value;
-            const visibility = document.getElementById('newVotingVisibility').value === 'true';
-            if (visibility) {
-                const all = await getDocs(collection(db,"votings"));
-                const batch = writeBatch(db);
-                all.forEach(d => batch.update(d.ref, { visible: false }));
-                await batch.commit();
-            }
-            await updateDoc(doc(db,"votings",id), { title, description: desc, status, visible: visibility });
-            showMessage('Zapisano zmiany');
-            clearForm();
-            loadAdminVotings();
-            loadVotingSelect();
-            updateDashboard();
-        };
-        switchTab(4);
-    };
 
-    // Dodawanie nowego głosowania
-    document.getElementById('newVotingForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const title = document.getElementById('newVotingTitle').value;
-        const desc = document.getElementById('newVotingDesc').value;
-        const status = document.getElementById('newVotingStatus').value;
-        const visibility = document.getElementById('newVotingVisibility').value === 'true';
-        if (visibility) {
-            const all = await getDocs(collection(db,"votings"));
+    window.addVoting = async () => {
+        const title = document.getElementById('newTitle').value;
+        const desc = document.getElementById('newDesc').value;
+        const status = document.getElementById('newStatus').value;
+        const visible = document.getElementById('newVisible').value === 'true';
+        if (!title) { alert('Podaj tytuł'); return; }
+        if (visible) {
+            const all = await getDocs(collection(db, "votings"));
             const batch = writeBatch(db);
             all.forEach(d => batch.update(d.ref, { visible: false }));
             await batch.commit();
         }
         await addDoc(collection(db, "votings"), {
-            title, description: desc, status, visible: visibility,
+            title, description: desc, status, visible,
             resultsVisible: false,
             votes: { yes:0, no:0, abstain:0 },
             createdAt: new Date().toISOString()
         });
-        showMessage('Dodano nowe głosowanie');
-        clearForm();
+        alert('Dodano!');
+        document.getElementById('newTitle').value = '';
+        document.getElementById('newDesc').value = '';
         loadAdminVotings();
         loadVotingSelect();
         updateDashboard();
     };
 
-    window.clearForm = () => {
-        document.getElementById('newVotingForm').reset();
-        const btn = document.querySelector('#newVotingForm .btn-primary');
-        btn.innerHTML = '➕ Dodaj głosowanie';
-        document.getElementById('newVotingForm').onsubmit = document.getElementById('newVotingForm').onsubmit; // reset
-        location.reload(); // prosty reset formularza
-    };
-
     async function loadVotingSelect() {
         const snap = await getDocs(collection(db, "votings"));
         const select = document.getElementById('votingSelect');
-        select.innerHTML = '<option value="">-- Wybierz głosowanie --</option>';
-        snap.forEach(docSnap => {
-            const v = docSnap.data();
-            select.innerHTML += `<option value="${docSnap.id}">${docSnap.id}. ${v.title} (${v.visible ? 'widoczne' : 'ukryte'})</option>`;
+        select.innerHTML = '<option value="">-- Wybierz --</option>';
+        snap.forEach(d => {
+            select.innerHTML += `<option value="${d.id}">${d.data().title}</option>`;
         });
     }
 
     window.loadVotingDetails = async () => {
-        const votingId = document.getElementById('votingSelect').value;
+        const id = document.getElementById('votingSelect').value;
         const container = document.getElementById('votesDetails');
-        if (!votingId) { container.innerHTML = '<div class="empty-state">Wybierz głosowanie</div>'; return; }
-        const votingSnap = await getDoc(doc(db, "votings", votingId));
-        if (!votingSnap.exists()) return;
-        const voting = votingSnap.data();
-        const subCol = collection(db, "voteDetails", votingId, "votes");
-        const votesSnap = await getDocs(subCol);
-        const votes = votesSnap.docs.map(d => ({ voterName: d.id, ...d.data() }));
-        const yes = votes.filter(v => v.voteType === 'yes').length;
-        const no = votes.filter(v => v.voteType === 'no').length;
-        const abstain = votes.filter(v => v.voteType === 'abstain').length;
-        let html = `<div class="info-box"><h3>${escapeHtml(voting.title)}</h3><p>${escapeHtml(voting.description)}</p><p>Status: ${voting.status} | Wyniki widoczne: ${voting.resultsVisible ? 'Tak' : 'Nie'}</p><p>Głosy: ZA ${yes}, PRZECIW ${no}, WSTRZ ${abstain}</p></div>`;
-        if (votes.length === 0) html += '<div class="empty-state">Brak oddanych głosów</div>';
+        if (!id) { container.innerHTML = '<div class="empty-state">Wybierz głosowanie</div>'; return; }
+        const votesCol = collection(db, "voteDetails", id, "votes");
+        const snap = await getDocs(votesCol);
+        let html = '<div class="info-box"><h3>Szczegóły głosów</h3></div>';
+        if (snap.empty) { html += '<div class="empty-state">Brak głosów</div>'; }
         else {
-            html += `<button class="export-btn" onclick="exportVotingData('${votingId}')">📥 Eksportuj CSV</button><div class="votes-table-container"><table class="votes-table"><thead><tr><th>Lp.</th><th>Głosujący</th><th>Głos</th><th>Data</th></tr></thead><tbody>`;
-            votes.forEach((v, idx) => {
-                let voteClass = '', voteText = '';
-                if (v.voteType === 'yes') { voteClass='vote-yes-cell'; voteText='ZA'; }
-                else if (v.voteType === 'no') { voteClass='vote-no-cell'; voteText='PRZECIW'; }
-                else { voteClass='vote-abstain-cell'; voteText='WSTRZYMUJĘ SIĘ'; }
-                html += `<tr><td>${idx+1}</td><td>${escapeHtml(v.voterName)}</td><td class="${voteClass}">${voteText}</td><td>${new Date(v.timestamp).toLocaleString()}</td></tr>`;
+            html += '<table class="votes-table"><tr><th>Głosujący</th><th>Głos</th><th>Data</th></tr>';
+            snap.forEach(docSnap => {
+                const v = docSnap.data();
+                let voteClass = '';
+                let voteText = '';
+                if (v.voteType === 'yes') { voteClass = 'vote-yes-cell'; voteText = 'ZA'; }
+                else if (v.voteType === 'no') { voteClass = 'vote-no-cell'; voteText = 'PRZECIW'; }
+                else { voteClass = 'vote-abstain-cell'; voteText = 'WSTRZYMUJĘ SIĘ'; }
+                html += `<tr><td>${escapeHtml(v.voterName)}</td><td class="${voteClass}">${voteText}</td><td>${new Date(v.timestamp).toLocaleString()}</td></tr>`;
             });
-            html += `</tbody></table></div>`;
+            html += '</table>';
         }
         container.innerHTML = html;
     };
 
-    window.exportVotingData = async (votingId) => {
-        const votingSnap = await getDoc(doc(db,"votings",votingId));
-        const voting = votingSnap.data();
-        const subCol = collection(db,"voteDetails",votingId,"votes");
-        const votesSnap = await getDocs(subCol);
-        let csv = `Głosowanie: ${voting.title}\nOpis: ${voting.description}\n\nLp.,Głosujący,Głos,Data\n`;
-        votesSnap.docs.forEach((d, i) => {
-            const v = d.data();
-            const voteText = v.voteType === 'yes' ? 'ZA' : v.voteType === 'no' ? 'PRZECIW' : 'WSTRZYMUJĘ SIĘ';
-            csv += `${i+1},${v.voterName},${voteText},"${new Date(v.timestamp).toLocaleString()}"\n`;
-        });
-        const blob = new Blob([csv], {type: 'text/csv'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `glosowanie_${votingId}.csv`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-    };
-
     window.exportAllData = async () => {
-        const votingsSnap = await getDocs(collection(db,"votings"));
-        const allData = {};
-        for (const docSnap of votingsSnap.docs) {
+        const snap = await getDocs(collection(db, "votings"));
+        let data = {};
+        for (const docSnap of snap.docs) {
             const id = docSnap.id;
             const voting = docSnap.data();
-            const votesCol = collection(db,"voteDetails",id,"votes");
+            const votesCol = collection(db, "voteDetails", id, "votes");
             const votesSnap = await getDocs(votesCol);
-            const votesList = votesSnap.docs.map(d => d.data());
-            allData[id] = { voting, votes: votesList };
+            const votes = votesSnap.docs.map(d => d.data());
+            data[id] = { voting, votes };
         }
-        const json = JSON.stringify(allData, null, 2);
+        const json = JSON.stringify(data, null, 2);
         const blob = new Blob([json], {type: 'application/json'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `backup_glosowan.json`;
+        a.download = `backup_${new Date().toISOString()}.json`;
         a.click();
         URL.revokeObjectURL(a.href);
-        showMessage('Eksport zakończony');
     };
 
     window.clearAllData = async () => {
-        if (!confirm('USUWA WSZYSTKIE DANE! Nieodwracalne. Kontynuować?')) return;
-        const votingsSnap = await getDocs(collection(db,"votings"));
+        if (!confirm('Usunąć WSZYSTKIE dane? Nieodwracalne!')) return;
+        const snap = await getDocs(collection(db, "votings"));
         const batch = writeBatch(db);
-        for (const docSnap of votingsSnap.docs) {
-            const subCol = collection(db,"voteDetails",docSnap.id,"votes");
+        for (const docSnap of snap.docs) {
+            const subCol = collection(db, "voteDetails", docSnap.id, "votes");
             const subSnap = await getDocs(subCol);
-            subSnap.forEach(v => batch.delete(v.ref));
-            batch.delete(doc(db,"voteDetails",docSnap.id));
+            subSnap.forEach(s => batch.delete(s.ref));
+            batch.delete(doc(db, "voteDetails", docSnap.id));
             batch.delete(docSnap.ref);
         }
         await batch.commit();
-        showMessage('Wszystkie dane usunięte');
+        alert('Wszystkie dane usunięte');
         location.reload();
-    };
-
-    window.switchTab = (num) => {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(`tab${num}`).classList.add('active');
-        document.querySelectorAll('.tab')[num-1].classList.add('active');
-        if (num === 3) loadVotingDetails();
     };
 
     function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 </script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </body>
 </html>
