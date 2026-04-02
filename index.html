@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Głosowanie SU</title>
+    <title>Głosowanie SU - z blokadą urządzenia</title>
     <style>
-        /* (styling identyczny jak w oryginale, ale dla skrótu zostawiam oryginalny - możesz skopiować z poprzedniego pliku lub użyć tego samego) */
         :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --danger: #e74c3c; --warning: #f39c12; --light: #ecf0f1; --dark: #2c3e50; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%); min-height: 100vh; padding: 20px; color: #333; }
@@ -48,7 +47,7 @@
     <a href="admin.html" class="admin-link">🔐 Admin</a>
     <div class="container">
         <header>
-            <h1>🗳️ System GłOSowań Samorządu Uczniowskiego</h1>
+            <h1>🗳️ System Głosowań Samorządu Uczniowskiego</h1>
             <p class="subtitle">Zespół Szkół Technicznych w Mielcu</p>
             <div class="current-badge">AKTUALNE GŁOSOWANIE</div>
         </header>
@@ -64,26 +63,44 @@
         </main>
         <footer><p>© 2025 System Głosowania SU</p></footer>
     </div>
+
+    <!-- FingerprintJS (do identyfikacji urządzenia) -->
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+    
     <!-- Firebase SDK -->
     <script type="module">
-        // Import Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, increment, runTransaction, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        /* TU WPISZ SWÓJ firebaseConfig */
+        /* ========== TU WPISZ SWÓJ firebaseConfig ========== */
         const firebaseConfig = {
-  apiKey: "AIzaSyCZx26yk4sxdAKewKSyuGzCEWTOU8n4zcM",
+            apiKey: "AIzaSyCZx26yk4sxdAKewKSyuGzCEWTOU8n4zcM",
   authDomain: "szkolne-glosowanie.firebaseapp.com",
   projectId: "szkolne-glosowanie",
   storageBucket: "szkolne-glosowanie.firebasestorage.app",
   messagingSenderId: "700574499107",
   appId: "1:700574499107:web:b96aafa286252370cccc96"
-};
+        };
+        /* ================================================= */
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         let currentVoting = null;
+        let deviceFingerprint = null;      // przechowa identyfikator urządzenia
+        let fingerprintReady = false;
+
+        // Generuj fingerprint przy starcie
+        const fpPromise = FingerprintJS.load();
+        fpPromise.then(fp => fp.get()).then(result => {
+            deviceFingerprint = result.visitorId;
+            fingerprintReady = true;
+            console.log("Fingerprint urządzenia:", deviceFingerprint);
+            // Po uzyskaniu fingerprintu – odśwież widok (może być już załadowany)
+            if (currentVoting) {
+                renderVoting(currentVoting);
+            }
+        });
 
         async function loadCurrentVoting() {
             const loading = document.getElementById('loading');
@@ -102,7 +119,12 @@
                 currentVoting = { id: docSnap.id, ...docSnap.data() };
                 loading.style.display = 'none';
                 noVotingDiv.style.display = 'none';
-                renderVoting(currentVoting);
+                if (fingerprintReady) {
+                    renderVoting(currentVoting);
+                } else {
+                    // jeśli fingerprint jeszcze nie gotowy, pokaż komunikat ładowania
+                    container.innerHTML = '<div class="info-box">Ładowanie identyfikatora urządzenia...</div>';
+                }
                 updateVoteCounter(currentVoting.id);
                 if (currentVoting.resultsVisible) {
                     showResults(currentVoting.id);
@@ -116,7 +138,19 @@
         async function renderVoting(voting) {
             const container = document.getElementById('votingContainer');
             const lastVoter = localStorage.getItem('lastVoterName') || '';
-            const hasVoted = await checkIfVoted(voting.id, lastVoter);
+            
+            // Sprawdź blokady: po nazwie i po fingerprint
+            const hasVotedByName = await checkIfVotedByName(voting.id, lastVoter);
+            const hasVotedByDevice = await checkIfVotedByDevice(voting.id, deviceFingerprint);
+            const hasVoted = hasVotedByName || hasVotedByDevice;
+            
+            let blockMessage = '';
+            if (hasVotedByDevice && !hasVotedByName) {
+                blockMessage = '<div class="message error">⚠️ Z tego urządzenia oddano już głos (wcześniej pod inną nazwą). Możesz głosować tylko raz.</div>';
+            } else if (hasVotedByName) {
+                blockMessage = '<div class="message success">✅ Już oddałeś głos w tym głosowaniu (jako ' + escapeHtml(lastVoter) + ').</div>';
+            }
+            
             container.innerHTML = `
                 <div class="voting-card">
                     <div class="voting-title">${escapeHtml(voting.title)}</div>
@@ -126,54 +160,90 @@
                             <label>👤 Imię i Nazwisko (wymagane):</label>
                             <input type="text" id="voterName" placeholder="np. Jan Kowalski" value="${escapeHtml(lastVoter)}">
                         </div>
-                        ${hasVoted ? `<div class="message success">✅ Już oddałeś głos w tym głosowaniu</div>` : `
+                        ${blockMessage}
+                        ${!hasVoted ? `
                             <div class="vote-options">
                                 <button class="vote-btn vote-yes" onclick="vote('yes')">👍 ZA</button>
                                 <button class="vote-btn vote-no" onclick="vote('no')">👎 PRZECIW</button>
                                 <button class="vote-btn vote-abstain" onclick="vote('abstain')">🤝 WSTRZYMUJĘ SIĘ</button>
                             </div>
-                        `}
+                        ` : ''}
                     </div>
                 </div>
                 <div id="resultsContainer"></div>
             `;
         }
 
-        window.vote = async function(voteType) {
-            const voterName = document.getElementById('voterName').value.trim();
-            if (!voterName) { alert('Podaj imię i nazwisko'); return; }
-            if (!currentVoting) return;
-            const already = await checkIfVoted(currentVoting.id, voterName);
-            if (already) { alert('Już głosowałeś w tym głosowaniu'); return; }
-
-            try {
-                // Zapis głosu w subkolekcji voteDetails/{votingId}/votes/{voterName}
-                const voteRef = doc(db, "voteDetails", currentVoting.id, "votes", voterName);
-                await setDoc(voteRef, {
-                    voterName: voterName,
-                    voteType: voteType,
-                    timestamp: new Date().toISOString()
-                });
-                // Zwiększenie licznika w głosowaniu
-                const votingRef = doc(db, "votings", currentVoting.id);
-                await updateDoc(votingRef, {
-                    [`votes.${voteType}`]: increment(1)
-                });
-                localStorage.setItem('lastVoterName', voterName);
-                alert('Głos oddany!');
-                location.reload(); // odśwież, aby pokazać, że głos oddany
-            } catch (err) {
-                console.error(err);
-                alert('Błąd: ' + err.message);
-            }
-        };
-
-        async function checkIfVoted(votingId, voterName) {
+        // Sprawdzenie po nazwie
+        async function checkIfVotedByName(votingId, voterName) {
             if (!voterName) return false;
             const voteRef = doc(db, "voteDetails", votingId, "votes", voterName);
             const snap = await getDoc(voteRef);
             return snap.exists();
         }
+
+        // Sprawdzenie po fingerprint (urządzeniu)
+        async function checkIfVotedByDevice(votingId, fingerprint) {
+            if (!fingerprint) return false;
+            const deviceRef = doc(db, "voteDetails", votingId, "deviceFingerprints", fingerprint);
+            const snap = await getDoc(deviceRef);
+            return snap.exists();
+        }
+
+        // Głosowanie
+        window.vote = async function(voteType) {
+            if (!fingerprintReady) {
+                alert('Jeszcze trwa identyfikacja urządzenia. Spróbuj za chwilę.');
+                return;
+            }
+            const voterName = document.getElementById('voterName').value.trim();
+            if (!voterName) {
+                alert('Podaj imię i nazwisko.');
+                return;
+            }
+            if (!currentVoting) return;
+            
+            // Podwójne sprawdzenie (na wypadek, gdyby ktoś ominął front)
+            const alreadyByName = await checkIfVotedByName(currentVoting.id, voterName);
+            const alreadyByDevice = await checkIfVotedByDevice(currentVoting.id, deviceFingerprint);
+            if (alreadyByName || alreadyByDevice) {
+                alert('Nie możesz głosować – Twój głos (lub urządzenie) już został zarejestrowany.');
+                location.reload();
+                return;
+            }
+
+            try {
+                // 1. Zapis głosu w subkolekcji votes (pod nazwą)
+                const voteRef = doc(db, "voteDetails", currentVoting.id, "votes", voterName);
+                await setDoc(voteRef, {
+                    voterName: voterName,
+                    voteType: voteType,
+                    timestamp: new Date().toISOString(),
+                    deviceFingerprint: deviceFingerprint   // dodatkowo zapisujemy fingerprint przy głosie (dla ewidencji)
+                });
+                
+                // 2. Zapis fingerprintu w osobnej subkolekcji (blokada urządzenia)
+                const deviceRef = doc(db, "voteDetails", currentVoting.id, "deviceFingerprints", deviceFingerprint);
+                await setDoc(deviceRef, {
+                    fingerprint: deviceFingerprint,
+                    votedAs: voterName,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // 3. Zwiększenie liczników w głosowaniu
+                const votingRef = doc(db, "votings", currentVoting.id);
+                await updateDoc(votingRef, {
+                    [`votes.${voteType}`]: increment(1)
+                });
+                
+                localStorage.setItem('lastVoterName', voterName);
+                alert('Głos oddany! Dziękujemy.');
+                location.reload(); // odśwież, aby pokazać blokadę
+            } catch (err) {
+                console.error(err);
+                alert('Błąd zapisu: ' + err.message);
+            }
+        };
 
         async function updateVoteCounter(votingId) {
             const votingRef = doc(db, "votings", votingId);
@@ -204,8 +274,17 @@
             }
         }
 
-        function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+        function escapeHtml(str) { 
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m){
+                if(m==='&') return '&amp;';
+                if(m==='<') return '&lt;';
+                if(m==='>') return '&gt;';
+                return m;
+            });
+        }
 
+        // Uruchom
         loadCurrentVoting();
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
