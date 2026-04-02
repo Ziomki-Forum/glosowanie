@@ -5,548 +5,210 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Głosowanie SU</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --light: #ecf0f1;
-            --dark: #2c3e50;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #eee;
-        }
-        
-        h1 {
-            color: var(--primary);
-            margin-bottom: 10px;
-            font-size: 2em;
-        }
-        
-        .subtitle {
-            color: #666;
-            font-size: 1.1em;
-        }
-        
-        .current-badge {
-            display: inline-block;
-            background: #e74c3c;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
-            margin-top: 10px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.8; }
-            50% { opacity: 1; }
-            100% { opacity: 0.8; }
-        }
-        
-        .voting-card {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-left: 5px solid var(--secondary);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        
-        .voting-title {
-            color: var(--primary);
-            font-size: 1.3em;
-            margin-bottom: 10px;
-        }
-        
-        .voting-desc {
-            color: #555;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-        
-        .vote-options {
-            display: flex;
-            gap: 15px;
-            margin: 25px 0;
-            flex-wrap: wrap;
-        }
-        
-        .vote-btn {
-            flex: 1;
-            min-width: 120px;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .vote-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .vote-yes {
-            background: var(--success);
-            color: white;
-        }
-        
-        .vote-no {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .vote-abstain {
-            background: var(--warning);
-            color: white;
-        }
-        
-        .vote-btn:hover:not(:disabled) {
-            transform: scale(1.05);
-            opacity: 0.9;
-        }
-        
-        .voter-info {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            border: 2px solid #eee;
-            margin-top: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-        }
-        
-        input[type="text"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        
-        input[type="text"]:focus {
-            border-color: var(--secondary);
-            outline: none;
-        }
-        
-        .admin-link {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: bold;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 100;
-        }
-        
-        .admin-link:hover {
-            background: #1a252f;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            color: #666;
-            font-size: 0.9em;
-        }
-        
-        .message {
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            text-align: center;
-            display: none;
-        }
-        
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            display: block;
-        }
-        
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            display: block;
-        }
-        
-        .no-voting {
-            text-align: center;
-            padding: 50px;
-            color: #666;
-            font-size: 1.2em;
-        }
-        
-        .no-voting i {
-            font-size: 3em;
-            margin-bottom: 20px;
-            color: #95a5a6;
-        }
-        
-        .vote-counter {
-            text-align: center;
-            margin-top: 20px;
-            color: #7f8c8d;
-            font-size: 0.9em;
-        }
-        
-        .info-box {
-            background: #e8f4fd;
-            border-left: 5px solid #3498db;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .vote-options {
-                flex-direction: column;
-            }
-            
-            .vote-btn {
-                width: 100%;
-            }
-            
-            .admin-link {
-                position: static;
-                display: block;
-                text-align: center;
-                margin-bottom: 20px;
-            }
-        }
+        /* (styling identyczny jak w oryginale, ale dla skrótu zostawiam oryginalny - możesz skopiować z poprzedniego pliku lub użyć tego samego) */
+        :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --danger: #e74c3c; --warning: #f39c12; --light: #ecf0f1; --dark: #2c3e50; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%); min-height: 100vh; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; }
+        h1 { color: var(--primary); margin-bottom: 10px; font-size: 2em; }
+        .subtitle { color: #666; font-size: 1.1em; }
+        .current-badge { display: inline-block; background: #e74c3c; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; margin-top: 10px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+        .voting-card { background: #f8f9fa; border-radius: 10px; padding: 25px; margin-bottom: 25px; border-left: 5px solid var(--secondary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .voting-title { color: var(--primary); font-size: 1.3em; margin-bottom: 10px; }
+        .voting-desc { color: #555; margin-bottom: 20px; line-height: 1.6; }
+        .vote-options { display: flex; gap: 15px; margin: 25px 0; flex-wrap: wrap; }
+        .vote-btn { flex: 1; min-width: 120px; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .vote-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .vote-yes { background: var(--success); color: white; }
+        .vote-no { background: var(--danger); color: white; }
+        .vote-abstain { background: var(--warning); color: white; }
+        .vote-btn:hover:not(:disabled) { transform: scale(1.05); opacity: 0.9; }
+        .voter-info { background: white; padding: 20px; border-radius: 8px; border: 2px solid #eee; margin-top: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input[type="text"] { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+        input[type="text"]:focus { border-color: var(--secondary); outline: none; }
+        .admin-link { position: fixed; top: 20px; right: 20px; background: var(--primary); color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 100; }
+        .admin-link:hover { background: #1a252f; }
+        footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 0.9em; }
+        .message { padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; display: none; }
+        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+        .no-voting { text-align: center; padding: 50px; color: #666; font-size: 1.2em; }
+        .no-voting i { font-size: 3em; margin-bottom: 20px; color: #95a5a6; }
+        .vote-counter { text-align: center; margin-top: 20px; color: #7f8c8d; font-size: 0.9em; }
+        .info-box { background: #e8f4fd; border-left: 5px solid #3498db; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .results-box { background: #f1f9f1; border-left: 5px solid #27ae60; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        @media (max-width: 768px) { .container { padding: 15px; } .vote-options { flex-direction: column; } .vote-btn { width: 100%; } .admin-link { position: static; display: block; text-align: center; margin-bottom: 20px; } }
     </style>
 </head>
 <body>
-    <a href="admin.html" class="admin-link">.</a>
-    
+    <a href="admin.html" class="admin-link">🔐 Admin</a>
     <div class="container">
         <header>
-            <h1>🗳️ Sysytem Głosowań Samorządu Uczniowskiego</h1>
-            <p class="subtitle">przy Zespole Szkół Technicznych w Mielcu</p>
-            <p class="subtitle">Oddaj swój głos w aktualnie trwającym głosowaniu</p>
+            <h1>🗳️ System GłOSowań Samorządu Uczniowskiego</h1>
+            <p class="subtitle">Zespół Szkół Technicznych w Mielcu</p>
             <div class="current-badge">AKTUALNE GŁOSOWANIE</div>
         </header>
-        
         <main>
-            <div id="loading" style="text-align: center; padding: 40px; color: #666;">
-                <p>Ładowanie systemu...</p>
-            </div>
-            
+            <div id="loading" style="text-align: center; padding: 40px;">Ładowanie...</div>
             <div id="noVoting" class="no-voting" style="display: none;">
                 <i class="fas fa-box-open"></i>
                 <h3>Brak aktywnego głosowania</h3>
-                <div class="info-box">
-                    <p><strong>Obecnie nie ma żadnego aktywnego głosowania.</strong></p>
-                    <p>Oczekuj na informacje od przewodniczącego.</p>
-                    <ol style="text-align: left; margin: 15px 0; padding-left: 20px;">
-                        <li>Pamiętaj o odświeżeniu strony</li>
-                    </ol>
-                </div>
+                <div class="info-box"><p>Obecnie nie ma żadnego aktywnego głosowania.</p><p>Oczekuj na instrukcje przewodniczącego.</p></div>
             </div>
-            
-            <div id="votingContainer">
-                <!-- Bieżące głosowanie wczytuje się tutaj -->
-            </div>
-            
-            <div class="vote-counter">
-                <p id="voteCount">Głosów oddano: 0</p>
-            </div>
+            <div id="votingContainer"></div>
+            <div class="vote-counter" id="voteCounter"></div>
         </main>
-        
-        <footer>
-            <p>© 2024 System Głosowania Samorządu Uczniowskiego. Wersja 2.0</p>
-            <p>Każdy głos jest weryfikowany i zabezpieczony.</p>
-        </footer>
+        <footer><p>© 2025 System Głosowania SU</p></footer>
     </div>
-    
-    <script>
-        // GŁÓWNA FUNKCJA - uruchamia się po załadowaniu strony
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCurrentVoting();
-        });
-        
-        // Funkcja ładująca BIEŻĄCE głosowanie (tylko jedno, widoczne)
-        function loadCurrentVoting() {
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, increment, runTransaction, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        /* TU WPISZ SWÓJ firebaseConfig */
+        const firebaseConfig = {
+  apiKey: "AIzaSyCZx26yk4sxdAKewKSyuGzCEWTOU8n4zcM",
+  authDomain: "szkolne-glosowanie.firebaseapp.com",
+  projectId: "szkolne-glosowanie",
+  storageBucket: "szkolne-glosowanie.firebasestorage.app",
+  messagingSenderId: "700574499107",
+  appId: "1:700574499107:web:b96aafa286252370cccc96"
+};
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentVoting = null;
+
+        async function loadCurrentVoting() {
             const loading = document.getElementById('loading');
-            const noVoting = document.getElementById('noVoting');
+            const noVotingDiv = document.getElementById('noVoting');
             const container = document.getElementById('votingContainer');
-            
-            // Pobierz głosowania z localStorage
-            let votings = JSON.parse(localStorage.getItem('votings'));
-            
-            // Jeśli nie ma żadnych głosowań
-            if (!votings || votings.length === 0) {
-                setTimeout(() => {
+            try {
+                const q = query(collection(db, "votings"), where("visible", "==", true), where("status", "==", "active"));
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.empty) {
                     loading.style.display = 'none';
-                    noVoting.style.display = 'block';
-                }, 500);
-                return;
-            }
-            
-            // Znajdź BIEŻĄCE głosowanie (visible: true i status: active)
-            const currentVoting = votings.find(v => v.visible === true && v.status === 'active');
-            
-            setTimeout(() => {
-                loading.style.display = 'none';
-                
-                if (!currentVoting) {
-                    // Sprawdź czy są jakieś głosowania, ale nie ma aktywnego
-                    const anyVotings = votings.length > 0;
-                    if (anyVotings) {
-                        noVoting.innerHTML = `
-                            <i class="fas fa-eye-slash"></i>
-                            <h3>Brak aktywnego głosowania</h3>
-                            <div class="info-box">
-                                <p>Obecnie nie ma żadnego aktywnego głosowania.</p>
-                                <p>Oczekuj na instrukcje przewodniczącego.</p>
-                                <p>Pamiętaj o odświeżeniu strony!</p>
-                            </div>
-                        `;
-                    }
-                    noVoting.style.display = 'block';
+                    noVotingDiv.style.display = 'block';
+                    container.innerHTML = '';
                     return;
                 }
-                
-                // Wyświetl bieżące głosowanie
-                renderCurrentVoting(currentVoting);
-                
-                // Zaktualizuj licznik głosów
+                const docSnap = querySnapshot.docs[0];
+                currentVoting = { id: docSnap.id, ...docSnap.data() };
+                loading.style.display = 'none';
+                noVotingDiv.style.display = 'none';
+                renderVoting(currentVoting);
                 updateVoteCounter(currentVoting.id);
-            }, 500);
+                if (currentVoting.resultsVisible) {
+                    showResults(currentVoting.id);
+                }
+            } catch (err) {
+                console.error(err);
+                loading.innerHTML = 'Błąd ładowania. Odśwież stronę.';
+            }
         }
-        
-        // NIE MA DOMYŚLNYCH GŁOSOWAŃ - zaczynamy z pustą tablicą
-        
-        // Wyświetlanie BIEŻĄCEGO głosowania
-        function renderCurrentVoting(voting) {
+
+        async function renderVoting(voting) {
             const container = document.getElementById('votingContainer');
-            
-            // Pobierz głosy dla tego głosowania
-            const allVotes = JSON.parse(localStorage.getItem('votes') || '{}');
-            const thisVotes = allVotes[voting.id] || voting.votes;
-            
-            // Sprawdź czy użytkownik już głosował
-            const voterName = promptForVoterName(voting.id);
-            const hasVoted = checkIfVoted(voting.id, voterName);
-            
+            const lastVoter = localStorage.getItem('lastVoterName') || '';
+            const hasVoted = await checkIfVoted(voting.id, lastVoter);
             container.innerHTML = `
                 <div class="voting-card">
-                    <div class="voting-title">${voting.title}</div>
-                    
-                    <div class="voting-desc">${voting.description}</div>
-                    
+                    <div class="voting-title">${escapeHtml(voting.title)}</div>
+                    <div class="voting-desc">${escapeHtml(voting.description)}</div>
                     <div class="voter-info">
                         <div class="form-group">
-                            <label for="voterName">
-                                👤 Imię i Nazwisko (wymagane do głosowania):
-                            </label>
-                            <input type="text" 
-                                   id="voterName" 
-                                   placeholder="np. Jan Kowalski"
-                                   value="${voterName || ''}">
+                            <label>👤 Imię i Nazwisko (wymagane):</label>
+                            <input type="text" id="voterName" placeholder="np. Jan Kowalski" value="${escapeHtml(lastVoter)}">
                         </div>
-                        
-                        ${hasVoted ? 
-                            `<div class="message success">
-                                ✅ Już oddałeś głos w tym głosowaniu
-                            </div>` 
-                            : 
-                            `<div class="vote-options">
-                                <button class="vote-btn vote-yes" 
-                                        onclick="vote(${voting.id}, 'yes')">
-                                    👍 ZA
-                                </button>
-                                <button class="vote-btn vote-no" 
-                                        onclick="vote(${voting.id}, 'no')">
-                                    👎 PRZECIW
-                                </button>
-                                <button class="vote-btn vote-abstain" 
-                                        onclick="vote(${voting.id}, 'abstain')">
-                                    🤝 WSTRZYMUJĘ SIĘ
-                                </button>
-                            </div>`
-                        }
-                        
-                        ${hasVoted ? 
-                            `<div style="text-align: center; margin-top: 20px; color: #27ae60;">
-                                <i class="fas fa-check-circle"></i> Twój głos został już zarejestrowany
-                            </div>` 
-                            : ''
-                        }
+                        ${hasVoted ? `<div class="message success">✅ Już oddałeś głos w tym głosowaniu</div>` : `
+                            <div class="vote-options">
+                                <button class="vote-btn vote-yes" onclick="vote('yes')">👍 ZA</button>
+                                <button class="vote-btn vote-no" onclick="vote('no')">👎 PRZECIW</button>
+                                <button class="vote-btn vote-abstain" onclick="vote('abstain')">🤝 WSTRZYMUJĘ SIĘ</button>
+                            </div>
+                        `}
                     </div>
                 </div>
+                <div id="resultsContainer"></div>
             `;
         }
-        
-        // Funkcja głosowania
-        function vote(votingId, voteType) {
-            const voterNameInput = document.getElementById('voterName');
-            const voterName = voterNameInput.value.trim();
-            
-            // Walidacja
-            if (!voterName) {
-                alert('Proszę wpisać imię i nazwisko przed oddaniem głosu!');
-                voterNameInput.focus();
-                return;
+
+        window.vote = async function(voteType) {
+            const voterName = document.getElementById('voterName').value.trim();
+            if (!voterName) { alert('Podaj imię i nazwisko'); return; }
+            if (!currentVoting) return;
+            const already = await checkIfVoted(currentVoting.id, voterName);
+            if (already) { alert('Już głosowałeś w tym głosowaniu'); return; }
+
+            try {
+                // Zapis głosu w subkolekcji voteDetails/{votingId}/votes/{voterName}
+                const voteRef = doc(db, "voteDetails", currentVoting.id, "votes", voterName);
+                await setDoc(voteRef, {
+                    voterName: voterName,
+                    voteType: voteType,
+                    timestamp: new Date().toISOString()
+                });
+                // Zwiększenie licznika w głosowaniu
+                const votingRef = doc(db, "votings", currentVoting.id);
+                await updateDoc(votingRef, {
+                    [`votes.${voteType}`]: increment(1)
+                });
+                localStorage.setItem('lastVoterName', voterName);
+                alert('Głos oddany!');
+                location.reload(); // odśwież, aby pokazać, że głos oddany
+            } catch (err) {
+                console.error(err);
+                alert('Błąd: ' + err.message);
             }
-            
-            // Sprawdź czy głosowanie jeszcze aktywne
-            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
-            const voting = votings.find(v => v.id === votingId);
-            
-            if (!voting || voting.status !== 'active') {
-                alert('To głosowanie jest już zamknięte!');
-                return;
-            }
-            
-            // Sprawdź czy osoba już głosowała
-            if (checkIfVoted(votingId, voterName)) {
-                alert('Ta osoba już oddała głos w tym głosowaniu!');
-                return;
-            }
-            
-            // Zapisz głos
-            saveVote(votingId, voteType, voterName);
-            
-            // Zapisz imię dla przyszłych głosowań
-            localStorage.setItem('lastVoterName', voterName);
-            
-            // Odśwież widok
-            loadCurrentVoting();
-            
-            // Powiadomienie
-            showMessage(`✅ Dziękujemy ${voterName}! Twój głos został zapisany.`, 'success');
-        }
-        
-        // Zapisz głos w localStorage
-        function saveVote(votingId, voteType, voterName) {
-            // 1. Zaktualizuj liczbę głosów w głosowaniu
-            let votings = JSON.parse(localStorage.getItem('votings') || '[]');
-            const votingIndex = votings.findIndex(v => v.id === votingId);
-            
-            if (votingIndex !== -1) {
-                votings[votingIndex].votes[voteType]++;
-                localStorage.setItem('votings', JSON.stringify(votings));
-            }
-            
-            // 2. Zapisz szczegóły głosu (dla admina)
-            let allVotes = JSON.parse(localStorage.getItem('voteDetails') || '{}');
-            if (!allVotes[votingId]) allVotes[votingId] = [];
-            
-            allVotes[votingId].push({
-                voter: voterName,
-                vote: voteType,
-                timestamp: new Date().toISOString(),
-                ip: 'localhost'
-            });
-            
-            localStorage.setItem('voteDetails', JSON.stringify(allVotes));
-            
-            // 3. Zapisz że ta osoba głosowała
-            let voterHistory = JSON.parse(localStorage.getItem('voterHistory') || '{}');
-            if (!voterHistory[voterName]) voterHistory[voterName] = [];
-            voterHistory[voterName].push(votingId);
-            localStorage.setItem('voterHistory', JSON.stringify(voterHistory));
-        }
-        
-        // Sprawdź czy osoba już głosowała
-        function checkIfVoted(votingId, voterName) {
+        };
+
+        async function checkIfVoted(votingId, voterName) {
             if (!voterName) return false;
-            
-            const voterHistory = JSON.parse(localStorage.getItem('voterHistory') || '{}');
-            return voterHistory[voterName] && voterHistory[voterName].includes(votingId);
+            const voteRef = doc(db, "voteDetails", votingId, "votes", voterName);
+            const snap = await getDoc(voteRef);
+            return snap.exists();
         }
-        
-        // Zapamiętaj imię użytkownika
-        function promptForVoterName(votingId) {
-            return localStorage.getItem('lastVoterName') || '';
-        }
-        
-        // Aktualizuj licznik głosów
-        function updateVoteCounter(votingId) {
-            const votings = JSON.parse(localStorage.getItem('votings') || '[]');
-            const voting = votings.find(v => v.id === votingId);
-            
-            if (voting) {
-                const totalVotes = voting.votes.yes + voting.votes.no + voting.votes.abstain;
-                document.getElementById('voteCount').textContent = `Głosów oddano: ${totalVotes}`;
+
+        async function updateVoteCounter(votingId) {
+            const votingRef = doc(db, "votings", votingId);
+            const snap = await getDoc(votingRef);
+            if (snap.exists()) {
+                const v = snap.data().votes || { yes:0, no:0, abstain:0 };
+                const total = v.yes + v.no + v.abstain;
+                document.getElementById('voteCounter').innerHTML = `Głosów oddano: ${total}`;
             }
         }
-        
-        // Pokaż wiadomość
-        function showMessage(text, type) {
-            // Tymczasowe powiadomienie
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            messageDiv.textContent = text;
-            
-            document.body.appendChild(messageDiv);
-            
-            setTimeout(() => {
-                messageDiv.remove();
-            }, 5000);
+
+        async function showResults(votingId) {
+            const votingRef = doc(db, "votings", votingId);
+            const snap = await getDoc(votingRef);
+            if (snap.exists()) {
+                const v = snap.data().votes || { yes:0, no:0, abstain:0 };
+                const container = document.getElementById('resultsContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="results-box">
+                            <h3>📊 Aktualne wyniki</h3>
+                            <p>✅ ZA: ${v.yes}</p>
+                            <p>❌ PRZECIW: ${v.no}</p>
+                            <p>🤝 WSTRZYMUJĄCY SIĘ: ${v.abstain}</p>
+                        </div>
+                    `;
+                }
+            }
         }
+
+        function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+        loadCurrentVoting();
     </script>
-    
-    <!-- Font Awesome dla ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </body>
 </html>
